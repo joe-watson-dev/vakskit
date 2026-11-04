@@ -33,6 +33,8 @@ export function extractFonts(): FontsResult {
   document.querySelectorAll<HTMLLinkElement>('link[href*="fonts.googleapis.com"]').forEach((l) => {
     try {
       const u = new URL(l.href);
+      // Only real Google Fonts stylesheets (not any URL that merely mentions the host).
+      if (u.protocol !== 'https:' || u.hostname !== 'fonts.googleapis.com') return;
       u.searchParams.getAll('family').forEach((f) => google.set(f.split(':')[0].replace(/\+/g, ' '), l.href));
     } catch {
       /* ignore */

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { SOURCE_LABEL, familyCss, fullCss, googleHref, importSnippet, lineHeightLabel, roleCss } from '@/lib/fonts';
+import { SOURCE_LABEL, buildGoogleHref, familyCss, fullCss, importSnippet, lineHeightLabel, roleCss } from '@/lib/fonts';
 import type { FontsResult } from '@/lib/types';
 import { ScreenHeader } from './App';
 import { CopyIcon } from './MarkdownScreen';
@@ -17,7 +17,8 @@ function useSpecimens(families: Family[]) {
         return;
       }
       if (f.source === 'google' || f.source === 'next-font') {
-        const href = googleHref(f);
+        // Rebuilt from the family name: never load a stylesheet URL taken from the page.
+        const href = buildGoogleHref(f);
         if (!document.querySelector(`link[data-vk-font="${CSS.escape(f.family)}"]`)) {
           const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href });
           link.dataset.vkFont = f.family;
@@ -26,7 +27,8 @@ function useSpecimens(families: Family[]) {
         setReady((r) => ({ ...r, [f.family]: `'${f.family}'` }));
         return;
       }
-      const file = f.files.find((u) => /\.woff2/.test(u)) || f.files[0];
+      const web = f.files.filter((u) => /^https?:\/\//.test(u));
+      const file = web.find((u) => /\.woff2/.test(u)) || web[0];
       if (!file) return;
       const name = `vk-${f.family}`;
       new FontFace(name, `url("${file}")`)

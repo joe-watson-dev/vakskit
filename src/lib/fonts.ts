@@ -34,11 +34,25 @@ export const familyCss = (f: Family | Role, stack = 'stack' in f ? f.stack : '')
   return `'${name}', ${genericOf(stack)}`;
 };
 
-export function googleHref(f: Family) {
-  if (f.googleHref) return f.googleHref;
+const isGoogleFontsUrl = (href: string) => {
+  try {
+    const u = new URL(href);
+    return u.protocol === 'https:' && u.hostname === 'fonts.googleapis.com';
+  } catch {
+    return false;
+  }
+};
+
+/** Google Fonts URL built only from the family name and weights (never a URL taken from the page). */
+export function buildGoogleHref(f: Family) {
   const range = f.weights.find((w) => w.includes('–'));
   const weights = range ? range.replace('–', '..') : f.weights.length ? f.weights.join(';') : '400';
   return `https://fonts.googleapis.com/css2?family=${encodeURIComponent(f.family).replace(/%20/g, '+')}:wght@${weights}&display=swap`;
+}
+
+/** For snippets: the page's own Google Fonts link when it is a real one, else a rebuilt one. */
+export function googleHref(f: Family) {
+  return f.googleHref && isGoogleFontsUrl(f.googleHref) ? f.googleHref : buildGoogleHref(f);
 }
 
 /** How to load the font in another project. */
