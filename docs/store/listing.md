@@ -146,10 +146,10 @@ Tick all three certifications:
 
 ### Privacy policy URL
 
-Published by GitHub Pages from `site/privacy.md` (workflow `.github/workflows/pages.yml`):
+Served by Vercel from the `site/` folder (`site/privacy/index.html`):
 
 ```
-https://joe-watson-dev.github.io/vakskit/privacy/
+https://<your-vercel-domain>/privacy
 ```
 
 ---

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VaksKit Privacy Policy</title>
+<meta name="description" content="How the VaksKit Chrome extension handles data: nothing is collected, everything runs in your browser." />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="wrap">
+<a class="brand" href="/"><span class="logo"><i></i><i></i><i></i><i></i></span>VaksKit</a>
+<main class="card">
+<h1>VaksKit Privacy Policy</h1>
+<p><strong>Effective date:</strong> November 4, 2026</p>
+<p>This Privacy Policy explains how the VaksKit Chrome extension (&quot;VaksKit&quot;, &quot;the extension&quot;) handles information. VaksKit is published by VAKAKS (<a href="https://joedev.vakaks.com/">joedev.vakaks.com</a>), referred to as &quot;we&quot; or &quot;us&quot;.</p>
+<h2>Summary</h2>
+<ul>
+<li>VaksKit does <strong>not</strong> collect, store, sell or share personal information or browsing data.</li>
+<li>Everything VaksKit does happens <strong>locally in your browser</strong>. There is no VaksKit server, no account, no analytics, no advertising and no tracking.</li>
+<li>The only things saved are your <strong>preferences</strong>, on your own device.</li>
+</ul>
+<h2>1. Information VaksKit accesses</h2>
+<p>VaksKit reads the web page in your active tab, but only after you grant it access to websites, and only:</p>
+<ul>
+<li>when you click <strong>Analyze</strong>;</li>
+<li>when you open the VaksKit side panel, for the page in your active tab;</li>
+<li>while the side panel is open and <strong>Auto-analyze</strong> is turned on, each time you switch tabs or a page finishes loading in the active tab. You can turn Auto-analyze off in the panel&#39;s menu.</li>
+</ul>
+<p>VaksKit never reads pages while its side panel is closed.</p>
+<p>From that page, VaksKit reads the title, meta tags, structured data, headings, links, images, main text content and the fonts the page uses.</p>
+<p><strong>How it&#39;s used:</strong> only to show you the results in the side panel: the SEO report and exports, the page as Markdown, and the fonts and type scale.</p>
+<p><strong>Where it goes:</strong> nowhere. The information is processed in your browser, kept in memory only while you use the panel, and discarded when you analyze another page or close the panel. It&#39;s never sent to us or to anyone else.</p>
+<p>The <strong>Markdown → HTML</strong> tool processes the text you type or paste the same way: locally, without saving or sending it.</p>
+<h2>2. Information we collect</h2>
+<p><strong>None.</strong> We don&#39;t collect personally identifiable information, health, financial or authentication information, personal communications, location, web history, user activity, or website content. VaksKit doesn&#39;t use cookies, analytics, crash reporting or advertising.</p>
+<h2>3. Network requests made by the extension</h2>
+<p>VaksKit doesn&#39;t send data to any server operated by us. To work, it makes these requests directly from your browser, the same way a web page would:</p>
+<ul>
+<li><strong>Public files of the site you analyze:</strong> <code>/llms.txt</code>, <code>/llms-full.txt</code>, <code>/robots.txt</code> and <code>/sitemap.xml</code>, on that same website, to show whether they exist. These requests are sent without your cookies.</li>
+<li><strong>The site&#39;s icon (favicon):</strong> loaded from the analyzed website to display it in the panel.</li>
+<li><strong>Images in previews:</strong> the Markdown preview shows the images of the analyzed page, or of the Markdown you paste. These images load from their original addresses.</li>
+<li><strong>Fonts:</strong> to preview the fonts a page uses, VaksKit may load the font files from the analyzed website or from Google Fonts (<code>fonts.googleapis.com</code>, <code>fonts.gstatic.com</code>).</li>
+</ul>
+<p>As with any web request, the server that receives it can see your IP address and the address requested. Those servers are run by the websites you visit or by Google, under their own privacy policies (for Google Fonts: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>). VaksKit sends them no other information.</p>
+<h2>4. Information stored on your device</h2>
+<p>VaksKit stores only your preferences, locally:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;Main content only&quot; and &quot;Auto-analyze&quot; settings</td>
+<td>Chrome extension storage (<code>chrome.storage.local</code>)</td>
+<td>Remember your choices</td>
+</tr>
+<tr>
+<td>Theme (light, dark or system)</td>
+<td>The extension&#39;s local storage</td>
+<td>Remember your theme</td>
+</tr>
+</tbody></table>
+<p>These preferences never leave your device. They&#39;re kept until you change them or remove the extension, which deletes them.</p>
+<h2>5. Permissions</h2>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Why VaksKit needs it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Side panel</td>
+<td>Shows VaksKit&#39;s interface next to the page</td>
+</tr>
+<tr>
+<td>Scripting</td>
+<td>Reads the current page when an analysis runs</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Saves your preferences on your device</td>
+</tr>
+<tr>
+<td>Access to websites (optional)</td>
+<td>Lets VaksKit read the pages you choose to analyze. Requested only the first time you click Analyze; you can revoke it at any time in Chrome&#39;s extension settings</td>
+</tr>
+</tbody></table>
+<h2>6. Sharing and sale of data</h2>
+<p>We don&#39;t sell, rent, transfer or share any user data with third parties. We don&#39;t use or transfer data for purposes unrelated to VaksKit&#39;s single purpose, and we don&#39;t use it to determine creditworthiness or for lending.</p>
+<p>VaksKit&#39;s use of information complies with the <a href="https://developer.chrome.com/docs/webstore/program-policies/user-data-faq">Chrome Web Store User Data Policy</a>, including the Limited Use requirements.</p>
+<h2>7. Security</h2>
+<p>VaksKit&#39;s code is bundled inside the extension; it doesn&#39;t download or run remote code. The scripts that read a page run in Chrome&#39;s isolated extension environment, separate from the page&#39;s own scripts. Previews are shown in a sandboxed frame where page scripts can&#39;t run.</p>
+<h2>8. Children</h2>
+<p>VaksKit isn&#39;t directed at children under 13 and doesn&#39;t knowingly collect information from anyone, including children.</p>
+<h2>9. Your choices</h2>
+<p>Because we don&#39;t collect or keep your data, there is nothing for us to access, correct or delete. You stay in control in your browser:</p>
+<ul>
+<li>Turn off <strong>Auto-analyze</strong> in the VaksKit menu.</li>
+<li>Revoke website access in <code>chrome://extensions</code>.</li>
+<li>Remove the extension at any time, which deletes your saved preferences.</li>
+</ul>
+<h2>10. Changes to this policy</h2>
+<p>If this policy changes, we&#39;ll publish the new version on this page and update the effective date. If a future version of VaksKit ever needs to collect or transmit data (for example, for optional AI features), this policy will be updated <strong>before</strong> that version is released, and the feature will clearly tell you what it sends.</p>
+<h2>11. Contact</h2>
+<p>For questions about this policy or VaksKit, contact VAKAKS through <a href="https://joedev.vakaks.com/">joedev.vakaks.com</a>.</p>
+</main>
+<footer>Made by <a href="https://joedev.vakaks.com/">VAKAKS</a></footer>
+</div>
+</body>
+</html>

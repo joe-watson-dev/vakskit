@@ -1,0 +1,28 @@
+:root { --violet: #6a4cf5; --ink: #151518; --muted: #5c5c66; --line: #ece9f6; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); line-height: 1.65; -webkit-font-smoothing: antialiased;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #f1edff 0%, #f8f6ff 320px, #ffffff 720px) no-repeat, #fff;
+}
+a { color: var(--violet); text-underline-offset: 3px; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 24px 64px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+.logo { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5px; width: 22px; height: 22px; }
+.logo i { border-radius: 22%; }
+.logo i:nth-child(1) { background: #2f7bea; } .logo i:nth-child(2) { background: #f2552c; }
+.logo i:nth-child(3) { background: #7c4dff; } .logo i:nth-child(4) { background: #10a88f; }
+.card { margin-top: 32px; background: #fff; border-radius: 24px; padding: clamp(24px, 5vw, 48px);
+  box-shadow: 0 1px 2px rgb(60 40 140 / .05), 0 30px 70px -36px rgb(60 40 140 / .25); }
+h1 { font-size: clamp(30px, 5vw, 40px); line-height: 1.1; letter-spacing: -.03em; margin: 0 0 8px; }
+h2 { font-size: 20px; letter-spacing: -.01em; margin: 36px 0 8px; }
+p, li { color: #2a2a33; } ul { padding-left: 22px; } li { margin: 4px 0; }
+code { font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace; font-size: .88em; background: #f4f2fb; padding: 2px 6px; border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 700; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+.lead { font-size: 19px; color: var(--muted); margin: 0; }
+.links { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 28px; font-weight: 700; }
+footer { margin-top: 40px; text-align: center; font-size: 14px; color: #9d9da6; }
+footer a { color: #4a4a55; font-weight: 700; text-decoration: none; }

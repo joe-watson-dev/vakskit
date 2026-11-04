@@ -166,6 +166,14 @@ All tokens and component styles live in `src/index.css` (plain CSS classes; Tail
 
 React 19 · TypeScript 7 · Vite 8 (Rolldown) · Chrome Manifest V3 · Defuddle · turndown (+ GFM) · marked · DOMPurify · Tailwind CSS 4
 
+## 🌐 Website
+
+`site/` is a small static website (home page and privacy policy) deployed on Vercel, separate from the extension:
+
+- Vercel project **Root Directory**: `site` (no build step, files are served as they are).
+- `site/vercel.json` only deploys when something inside `site/` changes, so extension commits don't trigger a deploy.
+- The privacy policy lives in `site/privacy/index.html`.
+
 <a id="contributing"></a>
 
 ### TypeScript 7 and ESLint
