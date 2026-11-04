@@ -3,7 +3,6 @@ import { audit } from '@/lib/exporters';
 import { markdownStats } from '@/lib/mdsource';
 import { seoScore, toImprove } from '@/lib/score';
 import { Braces, Chevron, Code, Doc, Download, Gauge, Refresh } from '@/components/icons';
-import { SiteIcon } from '@/components/SiteIcon';
 import { hostOf } from '@/lib/url';
 import type { Result, Screen } from './App';
 import type { ExportFormat } from './ExportScreen';
@@ -56,7 +55,6 @@ export function Home({ result, loading, step, progress, error, access, onAnalyze
     <div className='body'>
       {error && <div className='notice'>{error}</div>}
       <div className='site'>
-        <SiteIcon seo={seo} />
         <div className='txt'>
           <b>{hostOf(seo.url)}</b>
           <small>
