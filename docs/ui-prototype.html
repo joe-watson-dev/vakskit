@@ -27,20 +27,24 @@
 
 /* VaksKit tokens */
 .vk {
-  --surface: #ffffff; --row: #eff0f3; --row-hover: #e7e8ec; --border: #e4e5ea;
+  --surface: #ffffff; --row: #ffffff; --row-hover: #faf9ff; --border: #ebe9f3;
+  --bg: linear-gradient(180deg, #ece8ff 0%, #f5f3ff 26%, #fbfaff 55%, #ffffff 100%);
+  --card-shadow: 0 1px 2px rgb(40 30 90 / .05), 0 4px 14px -6px rgb(40 30 90 / .10);
   --ink: #151518; --ink-2: #62626c; --ink-3: #9d9da6;
-  /* VaksKit Orange: the coral square of the logo, deep enough for white text */
-  --primary: #d6461a; --primary-2: #f26a3a; --on-primary: #ffffff; --glow: rgb(214 70 26 / .32); --tint: #fdeee8; --tag-violet: #b83a12;
+  /* VaksKit Violet: bright, not navy; white text */
+  --primary: #6a4cf5; --primary-2: #8f78ff; --on-primary: #ffffff; --glow: rgb(106 76 245 / .32); --tint: #efebff; --tag-violet: #5a3de0;
   --green: #12a150; --green-tint: #e8f7ee; --orange: #a86605; --orange-tint: #fff4dc; --grey-tint: #f2f2f4;
   --shadow: 0 1px 2px rgb(0 0 0 / .04), 0 18px 40px -18px rgb(0 0 0 / .22);
   color-scheme: light;
 }
 .vk.dark {
-  /* near-black neutral (no navy); orange primary with dark text */
-  --surface: #0f0f12; --row: #1c1c21; --row-hover: #25252b; --border: #2b2b32;
+  /* near-black neutral (no navy); violet primary */
+  --surface: #0f0f12; --row: #1a1a1f; --row-hover: #222228; --border: #26262d;
+  --bg: radial-gradient(120% 60% at 50% 0%, #1d1830 0%, #121117 45%, #0f0f12 100%);
+  --card-shadow: 0 1px 2px rgb(0 0 0 / .35);
   --ink: #f2f2f4; --ink-2: #a2a2ac; --ink-3: #6e6e78;
-  --primary: #ff7043; --primary-2: #ff8a5f; --on-primary: #160a05; --glow: rgb(255 112 67 / .25);
-  --tint: rgb(255 112 67 / .14); --tag-violet: #ff9d7a;
+  --primary: #8b72ff; --primary-2: #a592ff; --on-primary: #ffffff; --glow: rgb(139 114 255 / .28);
+  --tint: rgb(139 114 255 / .16); --tag-violet: #b6a6ff;
   --green: #4ade94; --green-tint: rgb(74 222 148 / .12); --orange: #fbbf24; --orange-tint: rgb(251 191 36 / .12); --grey-tint: #26262c;
   --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 24px 50px -20px rgb(0 0 0 / .7);
   color-scheme: dark;
@@ -65,7 +69,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 /* ---------- the panel ---------- */
 .vk {
   width: 372px; height: 740px;
-  background: var(--surface); color: var(--ink);
+  background: var(--bg, var(--surface)); color: var(--ink);
   border-radius: 24px; box-shadow: var(--shadow);
   display: flex; flex-direction: column; overflow: hidden; position: relative;
   font-size: 14px;
@@ -106,7 +110,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 .site small i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
 /* analyzing state */
-.site { position: relative; overflow: hidden; }
+.site { position: relative; overflow: hidden; background: none !important; box-shadow: none; padding: 2px 2px 4px !important; border-radius: 0 !important; }
 .site .bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--primary); border-radius: 0 3px 3px 0; transition: width .45s ease; }
 .vk.busy .site small i { background: var(--primary); animation: blink .8s ease-in-out infinite; }
 .vk.busy .site .ibtn svg { animation: spin .9s linear infinite; color: var(--primary); }
@@ -174,8 +178,8 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 .tile.primary { background: linear-gradient(150deg, var(--primary-2) 0%, var(--primary) 60%); color: var(--on-primary); box-shadow: 0 16px 30px -12px var(--glow); }
 .tile.primary .ic { background: rgb(255 255 255 / .2); }
 .tile.primary small { color: rgb(255 255 255 / .78); }
-.tile.soft { background: var(--row); }
-.tile.soft .ic { background: var(--surface); color: var(--ink); box-shadow: 0 2px 6px rgb(0 0 0 / .06); }
+.tile.soft { background: var(--row); box-shadow: var(--card-shadow); }
+.tile.soft .ic { background: var(--tint); color: var(--primary); box-shadow: none; }
 .vk.dark .tile.soft .ic { background: #2a2a31; box-shadow: none; }
 .tile.soft small { color: var(--ink-3); }
 .score { font-size: 1.9em; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
@@ -188,9 +192,11 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 /* Captures-style rows */
 .rows { display: grid; gap: 8px; }
 .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--row); font-weight: 600; font-size: .9em; width: 100%; text-align: left; }
+.row { box-shadow: var(--card-shadow); }
 .row .grow small { display: block; margin-top: 2px; font-size: .86em; font-weight: 500; color: var(--ink-3); }
-.row .ri { width: 32px; height: 32px; border-radius: 10px; background: var(--surface); display: grid; place-items: center; flex-shrink: 0; }
-.vk.dark .row .ri { background: #2a2a31; }
+.row .ri { width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--primary); display: grid; place-items: center; flex-shrink: 0; }
+.vk.dark .row .ri { background: var(--tint); }
+.row .ri svg { color: var(--primary); }
 .row:hover { background: var(--row-hover); }
 .row svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--ink-2); }
 .row .grow { flex: 1; min-width: 0; }
@@ -278,10 +284,10 @@ pre.md .bq { display: block; border-left: 3px solid var(--border); padding-left:
       <button data-c="#5b5cf0,#7a7bf7,#6f70ff,#8b8cff,#ffffff" style="--sw:#5b5cf0" aria-pressed="false">Indigo</button>
       <button data-c="#1f6feb,#4a8cf3,#4c8dff,#6ea3ff,#ffffff" style="--sw:#1f6feb" aria-pressed="false">Blue</button>
       <button data-c="#0d8f7a,#1fb39a,#2ccfb2,#4fe0c6,#04201b" style="--sw:#0d8f7a" aria-pressed="false">Teal</button>
-      <button data-c="#7442e6,#9066f2,#a283ff,#b9a1ff,#ffffff" style="--sw:#7442e6" aria-pressed="false">Violet</button>
+      <button data-c="#6a4cf5,#8f78ff,#8b72ff,#a592ff,#ffffff" style="--sw:#6a4cf5" aria-pressed="true">Violet (now)</button>
       <button data-c="#16803c,#22a04f,#3ccb6b,#5fdb87,#04170b" style="--sw:#16803c" aria-pressed="false">Green</button>
       <button data-c="#151518,#2b2b30,#f2f2f4,#ffffff,#151518" style="--sw:#151518" aria-pressed="false">Black</button>
-      <button data-c="#d6461a,#f26a3a,#ff7043,#ff8a5f,#160a05" style="--sw:#d6461a" aria-pressed="true">Orange (now)</button>
+      <button data-c="#d6461a,#f26a3a,#ff7043,#ff8a5f,#160a05" style="--sw:#d6461a" aria-pressed="false">Orange</button>
     </div>
   </header>
   <div class="frames">
