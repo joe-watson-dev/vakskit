@@ -967,3 +967,35 @@ textarea.write:focus {
 @keyframes toast-in {
   from { transform: translate(-50%, 8px); opacity: 0; }
 }
+
+/* ---------- Export screen ---------- */
+.doc-head .hint {
+  margin: 0;
+  font-size: 0.8em;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+pre.code-view {
+  font-size: 0.74em;
+  line-height: 1.7;
+}
+pre.code-view .key { color: var(--primary); font-weight: 500; }
+pre.code-view .str { color: var(--green); }
+pre.code-view .kw { color: var(--ink-3); font-weight: 600; }
+:root:not(.dark) pre.code-view .str { color: #0f7a4f; }
+
+/* ---------- Markdown view: more vertical air ---------- */
+pre.md {
+  padding: 18px 18px 20px;
+  line-height: 1.95;
+}
+pre.md .ln { min-height: 1.95em; }
+pre.md .ln.fm { line-height: 1.7; min-height: 1.7em; }
+pre.md .h1,
+pre.md .h2,
+pre.md .h3 { padding-top: 0.9em; padding-bottom: 0.25em; line-height: 1.45; }
+pre.md .h1:first-child,
+pre.md .ln.fm + .h1 { padding-top: 0.5em; }
+pre.md .bq { margin: 0.2em 0; }
+.doc-head { padding-bottom: 8px; }
+pre.code-view { line-height: 1.85; }

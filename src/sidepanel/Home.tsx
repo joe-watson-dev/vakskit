@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { audit, toJSON, toTypeScript } from '@/lib/exporters';
-import { copyText, downloadText, slugFromUrl } from '@/lib/files';
+import { audit } from '@/lib/exporters';
 import { markdownStats } from '@/lib/mdsource';
 import { seoScore, toImprove } from '@/lib/score';
 import { Braces, Chevron, Code, Doc, Download, Gauge, Refresh } from '@/components/icons';
 import { SiteIcon } from '@/components/SiteIcon';
 import { hostOf } from '@/lib/url';
 import type { Result, Screen } from './App';
+import type { ExportFormat } from './ExportScreen';
 
 type Props = {
   result: Result | null;
@@ -16,11 +16,10 @@ type Props = {
   error: string | null;
   access: boolean | null;
   onAnalyze: () => void;
-  onGo: (s: Screen) => void;
-  notify: (msg: string) => void;
+  onGo: (s: Screen, format?: ExportFormat) => void;
 };
 
-export function Home({ result, loading, step, progress, error, access, onAnalyze, onGo, notify }: Props) {
+export function Home({ result, loading, step, progress, error, access, onAnalyze, onGo }: Props) {
   const issues = useMemo(() => (result ? audit(result.seo) : []), [result]);
   const stats = useMemo(() => (result ? markdownStats(result.markdown) : null), [result]);
   const score = seoScore(issues);
@@ -51,11 +50,7 @@ export function Home({ result, loading, step, progress, error, access, onAnalyze
     );
   }
 
-  const { seo, markdown } = result;
-  const copy = async (text: string, msg: string) => {
-    await copyText(text);
-    notify(msg);
-  };
+  const { seo } = result;
 
   return (
     <div className='body'>
@@ -100,67 +95,45 @@ export function Home({ result, loading, step, progress, error, access, onAnalyze
         </button>
       </div>
 
-      <ProjectRows
-        onGo={onGo}
-        words={stats?.words}
-        onJson={() => copy(toJSON(seo), 'SEO copied as JSON')}
-        onTs={() => copy(toTypeScript(seo), 'SEO copied as TypeScript')}
-        onMd={() => {
-          downloadText(markdown, `${slugFromUrl(seo.url)}.md`, 'text/markdown');
-          notify(`Saved ${slugFromUrl(seo.url)}.md`);
-        }}
-      />
+      <ProjectRows onGo={onGo} words={stats?.words} />
     </div>
   );
 }
 
-function ProjectRows({
-  onGo,
-  disabled,
-  words,
-  onJson,
-  onTs,
-  onMd,
-}: {
-  onGo: (s: Screen) => void;
-  disabled?: boolean;
-  words?: number;
-  onJson?: () => void;
-  onTs?: () => void;
-  onMd?: () => void;
-}) {
+/** Each row opens a screen where you see the output, then copy or download it. */
+function ProjectRows({ onGo, disabled, words }: { onGo: (s: Screen, format?: ExportFormat) => void; disabled?: boolean; words?: number }) {
   return (
     <>
       <div className='label'>
         <h2>Use in your project</h2>
       </div>
       <div className='rows'>
-        <button className='row' onClick={onJson} disabled={disabled}>
+        <button className='row' onClick={() => onGo('export', 'json')} disabled={disabled}>
           <span className='ri'>
             <Braces />
           </span>
           <span className='grow'>
-            Copy SEO as JSON<small>Title, meta, Open Graph, JSON-LD</small>
+            SEO as JSON<small>View, copy or download · title, meta, Open Graph</small>
           </span>
           <span className='tag json'>.json</span>
           <Chevron className='chev' />
         </button>
-        <button className='row' onClick={onTs} disabled={disabled}>
+        <button className='row' onClick={() => onGo('export', 'ts')} disabled={disabled}>
           <span className='ri'>
             <Braces />
           </span>
           <span className='grow'>
-            Copy SEO as TypeScript<small>A typed object, ready to import</small>
+            SEO as TypeScript<small>View, copy or download · typed, ready to import</small>
           </span>
           <span className='tag ts'>.ts</span>
           <Chevron className='chev' />
         </button>
-        <button className='row' onClick={onMd} disabled={disabled}>
+        <button className='row' onClick={() => onGo('markdown')} disabled={disabled}>
           <span className='ri'>
             <Download />
           </span>
           <span className='grow'>
-            Download page as Markdown<small>{words ? `${words.toLocaleString()} words, front-matter included` : 'Front-matter included'}</small>
+            Page as Markdown<small>{words ? `View, copy or download · ${words.toLocaleString()} words` : 'View, copy or download'}</small>
           </span>
           <span className='tag md'>.md</span>
           <Chevron className='chev' />

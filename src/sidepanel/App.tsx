@@ -9,8 +9,9 @@ import { Home } from './Home';
 import { SeoScreen } from './SeoScreen';
 import { MarkdownScreen } from './MarkdownScreen';
 import { ConvertScreen } from './ConvertScreen';
+import { ExportScreen, type ExportFormat } from './ExportScreen';
 
-export type Screen = 'home' | 'seo' | 'markdown' | 'convert';
+export type Screen = 'home' | 'seo' | 'markdown' | 'convert' | 'export';
 export type Result = { seo: Seo; markdown: string; tabId: number };
 
 const STEPS = ['Reading meta tags…', 'Reading headings…', 'Checking images…', 'Converting to Markdown…', 'Looking for llms.txt…'];
@@ -47,6 +48,7 @@ export default function App() {
   const [access, setAccess] = useState<boolean | null>(null);
   const [converterMd, setConverterMd] = useState(SAMPLE);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
   const [toast, setToast] = useState<string | null>(null);
   const settings = useRef({ mainOnly, auto });
   settings.current = { mainOnly, auto };
@@ -142,8 +144,9 @@ export default function App() {
     else setError('VaksKit needs permission to read pages. Click Analyze and choose Allow.');
   };
 
-  const go = (next: Screen) => {
+  const go = (next: Screen, format?: ExportFormat) => {
     setMenuOpen(false);
+    if (format) setExportFormat(format);
     setScreen(next);
   };
   const home = () => go('home');
@@ -167,7 +170,7 @@ export default function App() {
     </div>
   );
 
-  const needsPage = (screen === 'seo' || screen === 'markdown') && !result;
+  const needsPage = (screen === 'seo' || screen === 'markdown' || screen === 'export') && !result;
 
   return (
     <div className={`vk${loading ? ' busy' : ''}`}>
@@ -199,16 +202,18 @@ export default function App() {
             access={access}
             onAnalyze={onAnalyzeClick}
             onGo={go}
-            notify={notify}
           />
         </>
       )}
       {screen === 'seo' && result && <SeoScreen seo={result.seo} siteFiles={siteFiles} notify={notify} onBack={home} menu={menu} />}
       {screen === 'markdown' && result && <MarkdownScreen result={result} notify={notify} onBack={home} menu={menu} />}
+      {screen === 'export' && result && (
+        <ExportScreen seo={result.seo} format={exportFormat} onFormat={setExportFormat} notify={notify} onBack={home} menu={menu} />
+      )}
       {screen === 'convert' && <ConvertScreen value={converterMd} onChange={setConverterMd} notify={notify} onBack={home} menu={menu} />}
       {needsPage && (
         <>
-          <ScreenHeader title={screen === 'seo' ? 'SEO report' : 'Markdown'} onBack={home} menu={menu} />
+          <ScreenHeader title={screen === 'markdown' ? 'Markdown' : 'SEO report'} onBack={home} menu={menu} />
           <div className='body'>
             <div className='empty'>
               <p>Analyze a page first.</p>

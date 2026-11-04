@@ -55,6 +55,35 @@ function dropRepeatedRuns(md: string) {
 }
 
 /** Tidy converter output: list spacing, blank lines, headings split by <br>. */
+/**
+ * Embedded players (iframe, video, audio, embed) come through as raw HTML.
+ * Turn each into a plain Markdown link so the output stays Markdown.
+ */
+function embedsToLinks(md: string, pageUrl: string) {
+  const attr = (tag: string, name: string) => tag.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, 'i'))?.[1];
+  return md
+    .replace(/<(iframe|video|audio|embed)\b[^>]*>(?:[\s\S]*?<\/\1>)?/gi, (tag, kind: string) => {
+      const src = attr(tag, 'src') || tag.match(/<source[^>]*src\s*=\s*["']([^"']+)["']/i)?.[1];
+      if (!src) return '';
+      let href = src;
+      try {
+        href = new URL(src, pageUrl).href;
+      } catch {
+        /* keep as is */
+      }
+      const label = attr(tag, 'title') || attr(tag, 'aria-label') || (kind.toLowerCase() === 'audio' ? 'Audio' : 'Embedded video');
+      return `[▶ ${label}](${href})`;
+    })
+    .replace(/<\/?(?:source|track|param)\b[^>]*>/gi, '');
+}
+
+/** Only keep a "published" value that is a real date (not "3:19 PM"). */
+function realDate(value?: string) {
+  if (!value || !/\d{4}/.test(value)) return undefined;
+  const t = Date.parse(value);
+  return Number.isNaN(t) ? undefined : value;
+}
+
 function tidy(md: string) {
   return (
     md
@@ -82,13 +111,13 @@ const yamlLine = (key: string, value: string | number | undefined | null) =>
 export function buildMarkdown(page: PageResult) {
   const { seo } = page;
   const raw = page.markdown?.trim() ? page.markdown : turndown.turndown(page.html);
-  const body = tidy(dropRepeatedRuns(unwrapImageProxies(raw, seo.url)));
+  const body = tidy(dropRepeatedRuns(embedsToLinks(unwrapImageProxies(raw, seo.url), seo.url)));
   const front = [
     '---',
     yamlLine('title', seo.title || seo.url),
     yamlLine('description', seo.description),
     yamlLine('author', page.meta?.author),
-    yamlLine('published', page.meta?.published),
+    yamlLine('published', realDate(page.meta?.published)),
     yamlLine('site', page.meta?.site),
     yamlLine('image', page.meta?.image && unwrapImageProxies(page.meta.image, seo.url)),
     yamlLine('source', cleanUrl(seo.url)),
