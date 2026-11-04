@@ -88,7 +88,10 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 .ibtn svg { width: 17px; height: 17px; }
 .ibtn.eye { transition: background .2s, color .2s, transform .2s; }
 .ibtn.eye[aria-pressed="true"] { background: var(--tint); color: var(--primary); }
-.ibtn.eye:active { transform: scale(.9); }
+.ibtn.eye:active, .ibtn.copy:active { transform: scale(.9); }
+.ibtn.copy.done { color: var(--green); background: var(--green-tint); }
+.ibtn.copy.done svg { animation: pop .25s ease; }
+.head-actions .ibtn svg { width: 16px; height: 16px; }
 .ibtn.eye svg { animation: blink .32s ease; }
 @keyframes blink { 0% { transform: scaleY(1); } 40% { transform: scaleY(.1); } 100% { transform: scaleY(1); } }
 .vk.swapping .unveil { animation: unveil .38s cubic-bezier(.2, .7, .2, 1); }
@@ -262,7 +265,7 @@ pre.md .bq { display: block; border-left: 3px solid var(--border); padding-left:
 .promo small { font-size: .78em; color: var(--ink-2); }
 .promo .btn { font-size: .8em; }
 
-.toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 18px; border-radius: 999px; font-weight: 700; font-size: .84em; white-space: nowrap; z-index: 5; animation: pop .2s ease; }
+.toast { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 18px; border-radius: 999px; font-weight: 700; font-size: .84em; white-space: nowrap; z-index: 5; animation: pop .2s ease; }
 @keyframes pop { from { transform: translate(-50%, 8px); opacity: 0; } }
 </style>
 </head>
@@ -397,7 +400,7 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
     ? `<div class="head"><div class="brand"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>VaksKit</div>
         <div class="head-actions"><button class="ibtn" data-act="theme" aria-label="Switch theme">${vk.classList.contains('dark') ? I.moon : I.sun}</button><button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`
     : `<div class="head"><button class="brand" data-go="home" style="gap:8px"><span class="ibtn" style="width:32px;height:32px;background:var(--row)">${I.back}</span>${s === 'markdown' ? 'Markdown' : 'SEO checks'}</button>
-        <div class="head-actions">${s === 'markdown' ? `<button class="ibtn eye" data-act="eye" aria-pressed="${vk.dataset.view === 'preview'}" title="${vk.dataset.view === 'preview' ? 'Show Markdown (P)' : 'Show preview (P)'}" aria-label="Toggle preview">${vk.dataset.view === 'preview' ? I.eye : I.eyeOff}</button>` : ''}<button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`;
+        <div class="head-actions">${s === 'markdown' ? `<button class="ibtn eye" data-act="eye" aria-pressed="${vk.dataset.view === 'preview'}" title="${vk.dataset.view === 'preview' ? 'Show Markdown (P)' : 'Show preview (P)'}" aria-label="Toggle preview">${vk.dataset.view === 'preview' ? I.eye : I.eyeOff}</button><button class="ibtn copy" data-act="copied" title="Copy Markdown" aria-label="Copy Markdown">${I.copy}</button><button class="ibtn" data-act="toast" data-msg="Saved holdmyseatnow-com.md" title="Download .md" aria-label="Download .md">${I.down}</button>` : ''}<button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`;
 
   const site = `<div class="site"><span class="fav">HM</span><div class="txt"><b>holdmyseatnow.com</b><small><i></i>Analyzed just now</small></div><button class="ibtn" aria-label="Analyze again" data-act="analyze">${I.refresh}</button><span class="bar"></span></div>`;
 
@@ -427,8 +430,7 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
         <div class="stats"><span><b>556</b>words</span><span><b>8</b>sections</span><span><b>4</b>images</span><span><b>3</b>min read</span></div>
       </div>
       <div class="unveil" data-k="${view}">${view === 'md' ? `<pre class="md">${paint(MD)}</pre>` : `<div class="reading">${window.marked ? marked.parse(MD.replace(/^---[\s\S]*?---\n/, '')) : ''}</div>`}</div>
-    </div>
-    <div class="dock"><button class="btn primary" data-act="toast" data-msg="Markdown copied">${I.copy}Copy Markdown</button><button class="btn outline" data-act="toast" data-msg="Saved holdmyseatnow-com.md" aria-label="Download .md">${I.down}</button></div>`;
+    </div>`;
   }
 
   function seo() {
@@ -513,6 +515,12 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
     if (b.dataset.go) { vk.dataset.screen = b.dataset.go; return render(vk); }
     if (b.dataset.view) { vk.dataset.view = b.dataset.view; return render(vk); }
     if (b.dataset.act === 'eye') return toggleEye(vk);
+    if (b.dataset.act === 'copied') {
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      b.classList.add('done'); toast(vk, 'Markdown copied · 556 words');
+      setTimeout(() => { b.innerHTML = I.copy; b.classList.remove('done'); }, 1400);
+      return;
+    }
     if (b.dataset.act === 'theme') { vk.classList.toggle('dark'); return render(vk); }
     if (b.dataset.act === 'toast') return toast(vk, b.dataset.msg);
     if (b.dataset.act === 'analyze') return analyze(vk);
