@@ -77,9 +77,9 @@ export function HomeTab({
             </div>
           )}
         </section>
-      ) : (
+      ) : emptyMessage ? (
         <Empty>{emptyMessage}</Empty>
-      )}
+      ) : null}
 
       <section className='space-y-tight'>
         <SectionTitle>Features</SectionTitle>

@@ -6,6 +6,7 @@ import {
   getTargetTab,
   hasSiteAccess,
   isAnalyzable,
+  isOwnTab,
   openFullView,
   requestSiteAccess,
   type SiteFile,
@@ -42,6 +43,7 @@ export default function App() {
   const [siteFiles, setSiteFiles] = useState<SiteFile[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [mainOnly, setMainOnly] = useState(true);
   const [auto, setAuto] = useState(true);
   const [access, setAccess] = useState<boolean | null>(null);
@@ -55,6 +57,12 @@ export default function App() {
     const id = ++runId.current;
     setError(null);
     const target = await getTargetTab();
+    // The active tab is PageKit's own full view: keep showing the last page, no error.
+    if (!FULL_VIEW_TAB_ID && (await isOwnTab(target))) {
+      setNotice('You’re in PageKit’s full view. The side panel picks up again when you go back to a website.');
+      return;
+    }
+    setNotice(null);
     if (!target?.id || !isAnalyzable(target.url)) {
       setResult(null);
       setSiteFiles(null);
@@ -147,7 +155,7 @@ export default function App() {
 
   const compact = scrolled > 24;
   const wide = FULL_VIEW_TAB_ID ? 'max-w-6xl' : '';
-  const emptyMessage = loading ? (
+  const emptyMessage = error || notice ? null : loading ? (
     'Reading the page…'
   ) : !access ? (
     <>
@@ -229,12 +237,18 @@ export default function App() {
           </div>
         )}
 
+        {notice && (
+          <div role='status' className='mb-stack rounded-md border border-border bg-muted px-[0.7em] py-[0.5em] text-xs text-muted-foreground'>
+            {notice}
+          </div>
+        )}
+
         {tab === 'home' ? (
           <HomeTab seo={result?.seo ?? null} markdown={result?.markdown ?? null} siteFiles={siteFiles} emptyMessage={emptyMessage} onGo={go} />
         ) : tab === 'convert' ? (
           <ConvertTab value={converterMd} onChange={setConverterMd} />
         ) : !result ? (
-          <Empty>{emptyMessage}</Empty>
+          emptyMessage && <Empty>{emptyMessage}</Empty>
         ) : tab === 'seo' ? (
           <SeoTab seo={result.seo} siteFiles={siteFiles} />
         ) : (
