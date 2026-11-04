@@ -3,7 +3,6 @@ import { copyText, downloadText, slugFromUrl } from '@/lib/files';
 import { markdownToHtml, previewDocument } from '@/lib/markdown';
 import { markdownSourceHtml, markdownStats } from '@/lib/mdsource';
 import { Check, Copy, Download, Eye, EyeOff } from '@/components/icons';
-import { SiteIcon } from '@/components/SiteIcon';
 import { hostOf } from '@/lib/url';
 import { ScreenHeader, type Result } from './App';
 
@@ -98,10 +97,6 @@ export function MarkdownScreen({ result, notify, onBack, menu }: Props) {
       />
       <div className='body'>
         <div className='doc-head'>
-          <div className='src-line'>
-            <SiteIcon seo={seo} mini />
-            <span>{hostOf(seo.url) + new URL(seo.url).pathname}</span>
-          </div>
           <h2>{title}</h2>
           <div className='stats'>
             <span>

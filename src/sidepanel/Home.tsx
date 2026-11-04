@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { audit } from '@/lib/exporters';
 import { markdownStats } from '@/lib/mdsource';
 import { seoScore, toImprove } from '@/lib/score';
-import { Braces, Chevron, Code, Doc, Download, Gauge, Refresh } from '@/components/icons';
+import { Braces, Chevron, Code, Doc, Download, Gauge, Refresh, Type } from '@/components/icons';
 import { SiteIcon } from '@/components/SiteIcon';
 import { hostOf } from '@/lib/url';
 import type { Result, Screen } from './App';
@@ -95,13 +95,13 @@ export function Home({ result, loading, step, progress, error, access, onAnalyze
         </button>
       </div>
 
-      <ProjectRows onGo={onGo} words={stats?.words} />
+      <ProjectRows onGo={onGo} words={stats?.words} fonts={result.fonts?.families.map((f) => f.family)} />
     </div>
   );
 }
 
 /** Each row opens a screen where you see the output, then copy or download it. */
-function ProjectRows({ onGo, disabled, words }: { onGo: (s: Screen, format?: ExportFormat) => void; disabled?: boolean; words?: number }) {
+function ProjectRows({ onGo, disabled, words, fonts }: { onGo: (s: Screen, format?: ExportFormat) => void; disabled?: boolean; words?: number; fonts?: string[] }) {
   return (
     <>
       <div className='label'>
@@ -136,6 +136,17 @@ function ProjectRows({ onGo, disabled, words }: { onGo: (s: Screen, format?: Exp
             Page as Markdown<small>{words ? `View, copy or download · ${words.toLocaleString()} words` : 'View, copy or download'}</small>
           </span>
           <span className='tag md'>.md</span>
+          <Chevron className='chev' />
+        </button>
+        <button className='row' onClick={() => onGo('fonts')} disabled={disabled}>
+          <span className='ri'>
+            <Type />
+          </span>
+          <span className='grow'>
+            Fonts &amp; type scale
+            <small>{fonts?.length ? `${fonts.length} font${fonts.length === 1 ? '' : 's'} · ${fonts.slice(0, 2).join(', ')}` : 'Which fonts, where, and how to use them'}</small>
+          </span>
+          <span className='tag css'>.css</span>
           <Chevron className='chev' />
         </button>
         <button className='row' onClick={() => onGo('convert')}>

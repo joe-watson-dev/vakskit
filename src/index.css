@@ -1044,3 +1044,92 @@ pre.code-view { line-height: 1.85; }
   border-bottom-color: currentColor;
 }
 .credit a { letter-spacing: 0.06em; }
+
+/* ---------- site icon: round; no tile when the site has a favicon ---------- */
+.fav {
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+:root.dark .fav:not(.letters) {
+  background: transparent;
+}
+.fav img {
+  border-radius: 50%;
+}
+.fav.letters {
+  border-radius: 50%;
+}
+
+/* fainter credit */
+.credit {
+  opacity: 0.7;
+}
+.credit:hover {
+  opacity: 1;
+}
+
+/* ---------- format tabs: a floating white bar, violet active tab ---------- */
+.formats {
+  background: var(--row);
+  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+}
+.formats button {
+  padding: 6px 0;
+  border-radius: 9px;
+  transition: background 0.2s, color 0.2s;
+}
+.formats button:hover {
+  color: var(--ink);
+}
+.formats button[aria-pressed='true'],
+:root.dark .formats button[aria-pressed='true'] {
+  background: var(--tint);
+  color: var(--primary);
+  box-shadow: none;
+}
+.formats button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+.credit {
+  border-top: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px 10px;
+}
+
+/* ---------- Fonts screen ---------- */
+.tag.css { color: #a3266e; background: #fce7f3; }
+:root.dark .tag.css { color: #f9a8d4; background: rgb(249 168 212 / 0.13); }
+.mono { font-family: var(--mono); }
+.fonts { display: grid; gap: 12px; }
+.card.font { padding: 12px 14px; display: grid; gap: 10px; }
+.font-top { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; }
+.font-top .grow { flex: 1; min-width: 0; }
+.font-top b { display: block; font-size: 1.05em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.font-top small { display: block; margin-top: 2px; font-size: 0.78em; color: var(--ink-3); }
+.specimen {
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 12px;
+  display: grid; place-items: center;
+  background: var(--tint); color: var(--primary);
+  font-size: 1.45em; font-weight: 600; letter-spacing: -0.02em;
+}
+.used { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 0.72em; font-weight: 600; color: var(--ink-2); background: var(--grey-tint); padding: 3px 9px; border-radius: 999px; }
+.howto { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
+.howto-head { display: flex; align-items: center; justify-content: space-between; font-size: 0.78em; font-weight: 700; color: var(--ink-2); }
+.howto pre.code { font-size: 0.72em; line-height: 1.7; max-height: 220px; }
+.card.scale { padding: 4px 14px; }
+.scale-row { display: flex; gap: 12px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--border); }
+.scale-row:first-child { border-top: 0; }
+.scale-row .role { width: 4.6em; flex-shrink: 0; font-size: 0.72em; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em; }
+.scale-row .grow { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.scale-row .sample { color: var(--ink); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scale-row small { font-size: 0.7em; color: var(--ink-3); }
+
+.scale-row .role { width: 78px; font-size: 0.66em; }

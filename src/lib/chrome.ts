@@ -1,5 +1,6 @@
 import { extractPage } from './extract';
 import { showScanOverlay } from './overlay';
+import { extractFonts } from './fonts-extract';
 import type { PageResult } from './types';
 
 const ALL_SITES = { origins: ['<all_urls>'] };
@@ -31,7 +32,11 @@ export async function analyzeTab(tabId: number, mainOnly: boolean): Promise<Page
     args: [{ mainOnly }],
   });
   if (!res?.result) throw new Error('The page did not return any data.');
-  return res.result as PageResult;
+  const page = res.result as PageResult;
+  // Fonts are a bonus: never let them break the analysis.
+  const [fonts] = await chrome.scripting.executeScript({ target: { tabId }, func: extractFonts }).catch(() => [undefined]);
+  if (fonts?.result) page.fonts = fonts.result;
+  return page;
 }
 
 export type SiteFile = { name: string; url: string; found: boolean; status: number; content: string };

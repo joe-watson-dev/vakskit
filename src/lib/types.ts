@@ -39,6 +39,36 @@ export type ArticleMeta = { author?: string; published?: string; site?: string; 
  * `markdown` comes from Defuddle when it succeeds; `html` is the cleaned
  * snapshot used as a fallback (converted with Turndown in the side panel).
  */
-export type PageResult = { seo: Seo; html: string; markdown?: string; meta?: ArticleMeta; markdownError?: string };
+export type FontSource = 'google' | 'adobe' | 'next-font' | 'self-hosted' | 'system';
+
+export type FontsResult = {
+  /** One entry per typeface, most used first. */
+  families: {
+    family: string; // display name ("Inter")
+    cssName: string; // name in the page's CSS ("__Inter_a1b2c3")
+    source: FontSource;
+    weights: string[];
+    roles: string[]; // "H1", "Paragraph"…
+    files: string[]; // font file URLs when the stylesheet is readable
+    googleHref?: string;
+  }[];
+  /** The style each kind of text actually gets. */
+  roles: {
+    id: string;
+    label: string;
+    family: string;
+    system: boolean;
+    stack: string;
+    size: string;
+    weight: string;
+    style: string;
+    lineHeight: string;
+    letterSpacing: string;
+    transform: string;
+    sample: string;
+  }[];
+};
+
+export type PageResult = { seo: Seo; html: string; markdown?: string; meta?: ArticleMeta; markdownError?: string; fonts?: FontsResult };
 
 export type Issue = { level: 'error' | 'warn' | 'info'; msg: string };

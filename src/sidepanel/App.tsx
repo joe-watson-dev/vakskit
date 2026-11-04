@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { analyzeTab, fetchSiteFiles, getTargetTab, hasSiteAccess, isAnalyzable, requestSiteAccess, showScan, type SiteFile } from '@/lib/chrome';
 import { buildMarkdown } from '@/lib/markdown';
 import { useTheme } from '@/lib/theme';
-import type { Seo } from '@/lib/types';
+import type { FontsResult, Seo } from '@/lib/types';
 import { Back, Logo, Moon, More, Sun } from '@/components/icons';
 import { Menu } from './Menu';
 import { Home } from './Home';
@@ -10,9 +10,10 @@ import { SeoScreen } from './SeoScreen';
 import { MarkdownScreen } from './MarkdownScreen';
 import { ConvertScreen } from './ConvertScreen';
 import { ExportScreen, type ExportFormat } from './ExportScreen';
+import { FontsScreen } from './FontsScreen';
 
-export type Screen = 'home' | 'seo' | 'markdown' | 'convert' | 'export';
-export type Result = { seo: Seo; markdown: string; tabId: number };
+export type Screen = 'home' | 'seo' | 'markdown' | 'convert' | 'export' | 'fonts';
+export type Result = { seo: Seo; markdown: string; tabId: number; fonts?: FontsResult };
 
 const STEPS = ['Reading meta tags…', 'Reading headings…', 'Checking images…', 'Converting to Markdown…', 'Looking for llms.txt…'];
 const SAMPLE = '# Hello from VaksKit\n\nWrite **Markdown** here and get clean HTML.\n\n- Lists\n- `code`\n- [Links](https://example.com)\n';
@@ -77,7 +78,7 @@ export default function App() {
     try {
       const page = await analyzeTab(target.id, settings.current.mainOnly);
       if (id !== runId.current) return; // a newer analysis started
-      setResult({ seo: page.seo, markdown: buildMarkdown(page), tabId: target.id });
+      setResult({ seo: page.seo, markdown: buildMarkdown(page), tabId: target.id, fonts: page.fonts });
       setSiteFiles(null);
       fetchSiteFiles(page.seo.url).then((files) => id === runId.current && setSiteFiles(files));
     } catch (e) {
@@ -170,7 +171,7 @@ export default function App() {
     </div>
   );
 
-  const needsPage = (screen === 'seo' || screen === 'markdown' || screen === 'export') && !result;
+  const needsPage = (screen === 'seo' || screen === 'markdown' || screen === 'export' || screen === 'fonts') && !result;
 
   return (
     <div className={`vk${loading ? ' busy' : ''}`}>
@@ -203,12 +204,6 @@ export default function App() {
             onAnalyze={onAnalyzeClick}
             onGo={go}
           />
-          <footer className='credit'>
-            Made by{' '}
-            <a href='https://joedev.vakaks.com/' target='_blank' rel='noopener noreferrer' title='Joe Watson DEV'>
-              VAKAKS
-            </a>
-          </footer>
         </>
       )}
       {screen === 'seo' && result && <SeoScreen seo={result.seo} siteFiles={siteFiles} notify={notify} onBack={home} menu={menu} />}
@@ -216,10 +211,11 @@ export default function App() {
       {screen === 'export' && result && (
         <ExportScreen seo={result.seo} format={exportFormat} onFormat={setExportFormat} notify={notify} onBack={home} menu={menu} />
       )}
+      {screen === 'fonts' && result && <FontsScreen fonts={result.fonts} notify={notify} onBack={home} menu={menu} />}
       {screen === 'convert' && <ConvertScreen value={converterMd} onChange={setConverterMd} notify={notify} onBack={home} menu={menu} />}
       {needsPage && (
         <>
-          <ScreenHeader title={screen === 'markdown' ? 'Markdown' : 'SEO report'} onBack={home} menu={menu} />
+          <ScreenHeader title={screen === 'markdown' ? 'Markdown' : screen === 'fonts' ? 'Fonts' : 'SEO report'} onBack={home} menu={menu} />
           <div className='body'>
             <div className='empty'>
               <p>Analyze a page first.</p>
@@ -230,6 +226,14 @@ export default function App() {
           </div>
         </>
       )}
+
+      {/* Credit: part of the global layout, at the bottom of every screen. */}
+      <footer className='credit'>
+        Made by{' '}
+        <a href='https://joedev.vakaks.com/' target='_blank' rel='noopener noreferrer' title='Joe Watson DEV'>
+          VAKAKS
+        </a>
+      </footer>
 
       {toast && (
         <div className='toast' role='status'>

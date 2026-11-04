@@ -5,7 +5,6 @@ import { markdownSourceHtml } from '@/lib/mdsource';
 import { hostOf } from '@/lib/url';
 import type { Seo } from '@/lib/types';
 import { Download } from '@/components/icons';
-import { SiteIcon } from '@/components/SiteIcon';
 import { ScreenHeader } from './App';
 import { CopyIcon } from './MarkdownScreen';
 
@@ -24,7 +23,8 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 function paint(code: string, format: ExportFormat) {
   if (format === 'md') return markdownSourceHtml(code);
   const h = esc(code);
-  if (format === 'html') return h.replace(/(&lt;\/?[a-z0-9]+)/g, '<span class="mk">$1</span>').replace(/(&quot;|")([^"]*?)(")/g, '<span class="str">"$2"</span>');
+  // Strings first, then tag names: the second pass only matches escaped "&lt;", never the markup the first pass added.
+  if (format === 'html') return h.replace(/"([^"\n]*)"/g, '<span class="str">"$1"</span>').replace(/(&lt;\/?[a-z0-9-]+)/g, '<span class="mk">$1</span>');
   return h
     .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')(\s*:)?/g, (_m, s: string, colon?: string) => (colon ? `<span class="key">${s}</span>${colon}` : `<span class="str">${s}</span>`))
     .replace(/^(\s+)([A-Za-z_$][\w$]*)(:)/gm, '$1<span class="key">$2</span>$3')
@@ -72,10 +72,6 @@ export function ExportScreen({ seo, format, onFormat, notify, onBack, menu }: Pr
       />
       <div className='body'>
         <div className='doc-head'>
-          <div className='src-line'>
-            <SiteIcon seo={seo} mini />
-            <span>{hostOf(seo.url) + new URL(seo.url).pathname}</span>
-          </div>
           <h2>{seo.title || hostOf(seo.url)}</h2>
           <p className='hint'>{f.hint}</p>
         </div>
