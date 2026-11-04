@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -7,7 +8,21 @@ import { defineConfig } from 'vite';
 // chrome://extensions → "Load unpacked". Files in public/ (manifest, icons)
 // are copied as-is.
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      // Defuddle's self-contained browser bundle, injected into pages by chrome.scripting.
+      name: 'vendor-defuddle',
+      generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'vendor/defuddle.js',
+          source: fs.readFileSync(path.resolve(__dirname, 'node_modules/defuddle/dist/index.full.js'), 'utf8'),
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

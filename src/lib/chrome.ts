@@ -56,6 +56,8 @@ export function isAnalyzable(url?: string) {
 }
 
 export async function analyzeTab(tabId: number, mainOnly: boolean): Promise<PageResult> {
+  // Load Defuddle into the page's isolated world (not the page's own scripts).
+  await chrome.scripting.executeScript({ target: { tabId }, files: ['vendor/defuddle.js'] }).catch(() => undefined);
   const [res] = await chrome.scripting.executeScript({
     target: { tabId },
     func: extractPage,

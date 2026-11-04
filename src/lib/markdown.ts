@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
-import type { Seo } from './types';
+import type { PageResult } from './types';
 import { cleanUrl } from './url';
 import { currentTheme } from './theme';
 
@@ -18,24 +18,92 @@ turndown.remove(['script', 'style']);
 const yaml = (s: string) => JSON.stringify(s); // JSON strings are valid YAML scalars
 
 /**
- * Page HTML snapshot -> Markdown. Page info goes in YAML front-matter
- * (read by static-site generators, CMSs and LLM pipelines) so the body
- * keeps the page's own heading structure.
+ * Image CDNs and frameworks that proxy the real image through a URL parameter
+ * (Next.js /_next/image, Vercel /_vercel/image, Nuxt /_ipx… ). Unwrap them so
+ * the Markdown points at the actual image.
  */
-export function htmlToMarkdown(html: string, seo: Seo) {
-  const body = turndown
-    .turndown(html)
-    .replace(/^(\s*)([-*+]|\d+\.)\s{2,}/gm, '$1$2 ') // "-   item" -> "- item"
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-  const front = ['---', `title: ${yaml(seo.title || seo.url)}`];
-  if (seo.description) front.push(`description: ${yaml(seo.description)}`);
-  front.push(`source: ${yaml(cleanUrl(seo.url))}`);
-  if (seo.lang) front.push(`lang: ${yaml(seo.lang)}`);
-  front.push('---', '');
-  // No <h1> in the extracted content: add the title so the document has one.
-  const heading = /^# /m.test(body) ? '' : `# ${seo.title || seo.url}\n\n`;
-  return front.join('\n') + '\n' + heading + body + '\n';
+function unwrapImageProxies(md: string, pageUrl: string) {
+  return md.replace(/\bhttps?:\/\/[^\s)"']*\/_(?:next|vercel)\/image\/?\?[^\s)"']*/g, (proxied) => {
+    try {
+      const inner = new URL(proxied).searchParams.get('url');
+      return inner ? new URL(inner, pageUrl).href : proxied;
+    } catch {
+      return proxied;
+    }
+  });
+}
+
+/**
+ * Carousels and marquees repeat their items so the loop scrolls smoothly.
+ * Remove a run of 3+ blocks that immediately repeats itself.
+ */
+function dropRepeatedRuns(md: string) {
+  const blocks = md.split(/\n{2,}/);
+  if (blocks.length > 3000) return md;
+  for (let i = 0; i < blocks.length; i++) {
+    const maxK = Math.min(200, Math.floor((blocks.length - i) / 2));
+    for (let k = maxK; k >= 3; k--) {
+      let same = true;
+      for (let j = 0; j < k && same; j++) same = blocks[i + j] === blocks[i + k + j];
+      if (same) {
+        blocks.splice(i + k, k);
+        k = Math.min(200, Math.floor((blocks.length - i) / 2)) + 1; // check again for a third copy
+      }
+    }
+  }
+  return blocks.join('\n\n');
+}
+
+/** Tidy converter output: list spacing, blank lines, headings split by <br>. */
+function tidy(md: string) {
+  return (
+    md
+      .replace(/^(\s*)([-*+]|\d+\.)\s{2,}/gm, '$1$2 ') // "-   item" -> "- item"
+      // "## Don't let your dream\ntrip slip away." (a <br> inside a heading) -> one line
+      .replace(/^(#{1,6} [^\n]*?)(?: {2}|\\)?\n(?=[^\n#>\-*\d|`![\s])([^\n]+)/gm, (m, head: string, rest: string) =>
+        rest.length < 80 && !/[.!?:]$/.test(head.trim()) ? `${head.trimEnd()} ${rest.trim()}` : m
+      )
+      // "now.Pay over time" in headings: a <br> or block span lost its space
+      .replace(/^#{1,6} .*$/gm, (h) => h.replace(/([a-z0-9][.!?])([A-Z])/g, '$1 $2'))
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  );
+}
+
+const yamlLine = (key: string, value: string | number | undefined | null) =>
+  value === undefined || value === null || value === '' ? null : `${key}: ${typeof value === 'number' ? value : yaml(String(value))}`;
+
+/**
+ * Build the Markdown document. Uses Defuddle's Markdown when the page gave it
+ * (main content found, headings, code blocks, footnotes standardized), and
+ * falls back to Turndown on the HTML snapshot otherwise. Page info goes in
+ * YAML front-matter (static-site generators, CMSs and LLM pipelines read it).
+ */
+export function buildMarkdown(page: PageResult) {
+  const { seo } = page;
+  const raw = page.markdown?.trim() ? page.markdown : turndown.turndown(page.html);
+  const body = tidy(dropRepeatedRuns(unwrapImageProxies(raw, seo.url)));
+  const front = [
+    '---',
+    yamlLine('title', seo.title || seo.url),
+    yamlLine('description', seo.description),
+    yamlLine('author', page.meta?.author),
+    yamlLine('published', page.meta?.published),
+    yamlLine('site', page.meta?.site),
+    yamlLine('image', page.meta?.image && unwrapImageProxies(page.meta.image, seo.url)),
+    yamlLine('source', cleanUrl(seo.url)),
+    yamlLine('lang', seo.lang),
+    '---',
+    '',
+  ].filter((l): l is string => l !== null);
+  // Defuddle turns the H1 into an H2, or drops it when it looks like the title.
+  // Give the document one H1: the page's own main heading, else its title.
+  const h1 = page.meta?.h1;
+  let doc = body;
+  const demoted = h1 ? doc.indexOf(`## ${h1}\n`) : -1;
+  if (!/^# /m.test(doc) && demoted !== -1) doc = doc.slice(0, demoted) + doc.slice(demoted + 1); // "## Title" -> "# Title"
+  const heading = /^# /m.test(doc) ? '' : `# ${h1 || seo.title || seo.url}\n\n`;
+  return front.join('\n') + '\n' + heading + doc + '\n';
 }
 
 /** Markdown -> HTML (GitHub flavored), sanitized. Front-matter is skipped. */

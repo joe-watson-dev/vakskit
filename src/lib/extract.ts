@@ -124,7 +124,65 @@ export function extractPage(options: { mainOnly: boolean }): PageResult {
     img.removeAttribute('srcset');
   });
 
+  // ---------- Markdown with Defuddle (vendor/defuddle.js is injected first) ----------
+  // Runs here, in the live page, so it can use real layout and styles to tell
+  // content from clutter. Falls back to the HTML snapshot if it isn't available.
+  let markdown: string | undefined;
+  let meta: PageResult['meta'];
+  let markdownError: string | undefined;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lib = (globalThis as any).Defuddle;
+    const Defuddle = lib?.default ?? lib;
+    if (typeof Defuddle === 'function') {
+      // Work on a copy of the page. Drop only what is really hidden (display:none,
+      // visibility:hidden) using the live layout. Defuddle's own check also drops
+      // opacity:0, which removes every "fade in on scroll" section of modern sites.
+      const copy = doc.cloneNode(true) as Document;
+      const liveEls = doc.querySelectorAll('*');
+      const copyEls = copy.querySelectorAll('*');
+      if (liveEls.length === copyEls.length) {
+        const hidden: Element[] = [];
+        const inlineTags = /^(SPAN|A|STRONG|B|EM|I|CODE|SMALL|LABEL|ABBR|MARK|TIME|SUP|SUB|S|U|KBD|CITE|Q)$/;
+        liveEls.forEach((el, i) => {
+          const cs = getComputedStyle(el);
+          if (cs.display === 'none' || cs.visibility === 'hidden') hidden.push(copyEls[i]);
+          // Inline tags laid out as blocks (flex items, badges) look separate on screen: keep a space.
+          else if (inlineTags.test(el.tagName) && cs.display !== 'inline' && cs.display !== 'contents') copyEls[i].after(' ');
+        });
+        hidden.forEach((el) => el.remove());
+      }
+      // A <br> inside a heading is a visual break, not a new line: keep the words apart.
+      copy.querySelectorAll('h1 br, h2 br, h3 br, h4 br, h5 br, h6 br').forEach((br) => br.replaceWith(' '));
+      const r = new Defuddle(copy, {
+        url: location.href,
+        markdown: true,
+        useAsync: false, // never call third-party services
+        removeHiddenElements: false, // done above, without the opacity rule
+        // Landing pages: <main> holds every section, so use it (Defuddle still cleans inside).
+        // No <main>: let Defuddle find the article itself. Main content off: the whole body.
+        contentSelector: !options.mainOnly ? 'body' : copy.querySelector('main') ? 'main' : copy.querySelector('[role="main"]') ? '[role="main"]' : undefined,
+      }).parse();
+      markdown = r.content;
+      meta = {
+        author: r.author || undefined,
+        published: r.published || undefined,
+        site: r.site || undefined,
+        image: r.image || undefined,
+        wordCount: r.wordCount,
+        h1: ((doc.querySelector('h1') as HTMLElement | null)?.innerText || '').replace(/\s+/g, ' ').trim() || undefined,
+      };
+    } else {
+      markdownError = 'Defuddle not loaded';
+    }
+  } catch (e) {
+    markdownError = String(e);
+  }
+
   return {
+    markdown,
+    meta,
+    markdownError,
     seo: {
       url: location.href,
       title: doc.title?.trim() || null,

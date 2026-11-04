@@ -32,6 +32,13 @@ export type Seo = {
   imagesMissingAlt: string[];
 };
 
-export type PageResult = { seo: Seo; html: string };
+/** Article details found by Defuddle (all optional). */
+export type ArticleMeta = { author?: string; published?: string; site?: string; image?: string; wordCount?: number; h1?: string };
+
+/**
+ * `markdown` comes from Defuddle when it succeeds; `html` is the cleaned
+ * snapshot used as a fallback (converted with Turndown in the side panel).
+ */
+export type PageResult = { seo: Seo; html: string; markdown?: string; meta?: ArticleMeta; markdownError?: string };
 
 export type Issue = { level: 'error' | 'warn' | 'info'; msg: string };

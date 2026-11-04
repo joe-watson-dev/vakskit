@@ -11,7 +11,7 @@ import {
   requestSiteAccess,
   type SiteFile,
 } from '@/lib/chrome';
-import { htmlToMarkdown } from '@/lib/markdown';
+import { buildMarkdown } from '@/lib/markdown';
 import { cleanUrl } from '@/lib/url';
 import { cx } from '@/lib/cx';
 import { useTheme } from '@/lib/theme';
@@ -75,9 +75,10 @@ export default function App() {
     }
     setLoading(true);
     try {
-      const { seo, html } = await analyzeTab(target.id, settings.current.mainOnly);
+      const page = await analyzeTab(target.id, settings.current.mainOnly);
+      const { seo } = page;
       if (id !== runId.current) return; // a newer analysis started
-      setResult({ seo, markdown: htmlToMarkdown(html, seo), tabId: target.id });
+      setResult({ seo, markdown: buildMarkdown(page), tabId: target.id });
       setSiteFiles(null);
       fetchSiteFiles(seo.url).then((files) => id === runId.current && setSiteFiles(files));
     } catch (e) {
