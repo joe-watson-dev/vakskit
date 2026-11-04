@@ -82,8 +82,8 @@ English
 | Asset | Size | File |
 | --- | --- | --- |
 | Store icon | 128×128 PNG | `public/icons/icon128.png` |
-| Screenshots (1 to 5) | 1280×800 PNG or JPEG | to create: Home, SEO report, Export JSON/TS, Markdown, Fonts |
-| Small promo tile | 440×280 PNG or JPEG | to create |
+| Screenshots (5) | 1280×800 JPEG | `docs/store/images/1-…` to `5-…` (upload in that order) |
+| Small promo tile | 440×280 JPEG | `docs/store/images/promo-tile-440x280.jpg` |
 | Marquee promo tile (optional) | 1400×560 | optional |
 | Promo video (optional) | YouTube link | upload `vakskit-tablet-1920x1440.mp4` to YouTube |
 
