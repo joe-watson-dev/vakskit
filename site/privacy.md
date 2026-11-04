@@ -1,3 +1,8 @@
+---
+title: VaksKit Privacy Policy
+permalink: /privacy/
+---
+
 # VaksKit Privacy Policy
 
 _Last updated: November 4, 2026_
@@ -47,4 +52,4 @@ If this policy changes, the new version will be published at this address with a
 
 ## Contact
 
-Questions about this policy: [your contact email], or through https://joedev.vakaks.com/.
+Questions about this policy: contact VAKAKS through https://joedev.vakaks.com/.

@@ -146,9 +146,11 @@ Tick all three certifications:
 
 ### Privacy policy URL
 
-Host `docs/store/privacy-policy.md` as a public page, then paste its URL. For example:
-- on your site: `https://joedev.vakaks.com/vakskit/privacy`
-- or on GitHub, if the repo is public: `https://github.com/joe-watson-dev/vakskit/blob/main/docs/store/privacy-policy.md`
+Published by GitHub Pages from `site/privacy.md` (workflow `.github/workflows/pages.yml`):
+
+```
+https://joe-watson-dev.github.io/vakskit/privacy/
+```
 
 ---
 
