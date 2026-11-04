@@ -23,7 +23,7 @@
 
 /* VaksKit tokens */
 .vk {
-  --surface: #ffffff; --row: #f5f6fa; --border: #ecedf3;
+  --surface: #ffffff; --row: #eef0f6; --row-hover: #e6e8f2; --border: #e3e5ee;
   --ink: #16154a; --ink-2: #6e7091; --ink-3: #a3a5bd;
   --primary: #5b5cf0; --primary-2: #7a7bf7; --on-primary: #ffffff; --glow: rgb(91 92 240 / .38); --tint: #eeeefe;
   --green: #12a150; --green-tint: #e8f7ee; --orange: #e0791f; --orange-tint: #fff3e6; --grey-tint: #f1f2f6;
@@ -31,7 +31,7 @@
   color-scheme: light;
 }
 .vk.dark {
-  --surface: #14142a; --row: #1c1c35; --border: #282845;
+  --surface: #0d0d1d; --row: #1d1d38; --row-hover: #26264a; --border: #2c2c4c;
   --ink: #eeeefb; --ink-2: #9b9dbb; --ink-3: #6b6d8c;
   --primary: #6f70ff; --primary-2: #8b8cff; --on-primary: #ffffff; --glow: rgb(111 112 255 / .35); --tint: #23235a;
   --green: #3ddc84; --green-tint: rgb(61 220 132 / .12); --orange: #ffa94d; --orange-tint: rgb(255 169 77 / .12); --grey-tint: #22223c;
@@ -65,8 +65,16 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 }
 .head { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 14px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.12em; letter-spacing: -.01em; }
-.logo { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-2), var(--primary)); display: grid; place-items: center; box-shadow: 0 6px 14px -6px var(--glow); }
-.logo svg { width: 18px; height: 18px; }
+.logo { width: 30px; height: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; flex-shrink: 0; }
+.logo i { border-radius: 5px; }
+.logo i:nth-child(1) { background: #2f7bea; }
+.logo i:nth-child(2) { background: #f2552c; }
+.logo i:nth-child(3) { background: #7c4dff; }
+.logo i:nth-child(4) { background: #10a88f; }
+.vk.dark .logo i:nth-child(1) { background: #6aa8ff; }
+.vk.dark .logo i:nth-child(2) { background: #ff7a57; }
+.vk.dark .logo i:nth-child(3) { background: #a887ff; }
+.vk.dark .logo i:nth-child(4) { background: #2dd4b4; }
 .head-actions { display: flex; gap: 6px; }
 .ibtn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); }
 .ibtn:hover { background: var(--row); color: var(--ink); }
@@ -79,6 +87,64 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 .site b { display: block; font-size: .9em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .site small { display: flex; align-items: center; gap: 6px; font-size: .76em; color: var(--ink-2); }
 .site small i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+/* analyzing state */
+.site { position: relative; overflow: hidden; }
+.site .bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--primary); border-radius: 0 3px 3px 0; transition: width .45s ease; }
+.vk.busy .site small i { background: var(--primary); animation: blink .8s ease-in-out infinite; }
+.vk.busy .site .ibtn svg { animation: spin .9s linear infinite; color: var(--primary); }
+.vk.busy .tile, .vk.busy .row { position: relative; overflow: hidden; }
+.vk.busy .tile::after, .vk.busy .row::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .35) 50%, transparent 80%); background-size: 200% 100%; animation: sweep 1.1s linear infinite; }
+.vk.dark.busy .tile::after, .vk.dark.busy .row::after { background-image: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .07) 50%, transparent 80%); }
+.vk.busy .tile .score, .vk.busy .tile small { opacity: .35; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes blink { 50% { opacity: .3; } }
+@keyframes sweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* the website being read (mock), with the scan overlay VaksKit draws on it */
+.browser { width: 560px; height: 740px; background: #fff; border-radius: 18px; box-shadow: 0 18px 40px -18px rgb(22 21 74 / .3); overflow: hidden; display: flex; flex-direction: column; color: #0f2a2b; font-family: var(--font); }
+.browser .chrome { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #eef0f4; border-bottom: 1px solid #e1e4ea; }
+.browser .chrome i { width: 10px; height: 10px; border-radius: 50%; background: #d3d7df; }
+.browser .chrome span { flex: 1; margin-left: 8px; background: #fff; border-radius: 999px; padding: 5px 12px; font-size: .74rem; color: #5b6170; }
+.browser .chrome b { width: 18px; height: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.browser .chrome b u { border-radius: 3px; }
+.browser .chrome b u:nth-child(1) { background: #2f7bea; } .browser .chrome b u:nth-child(2) { background: #f2552c; }
+.browser .chrome b u:nth-child(3) { background: #7c4dff; } .browser .chrome b u:nth-child(4) { background: #10a88f; }
+.site-page { position: relative; flex: 1; overflow: hidden; }
+.site-page nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; font-size: .78rem; font-weight: 700; }
+.site-page nav span { font-weight: 500; color: #5b6170; display: flex; gap: 14px; }
+.hero { margin: 0 16px; border-radius: 16px; padding: 34px 26px; background: linear-gradient(160deg, #0f3d3e 0%, #10282f 100%), #0f3d3e; color: #fff; display: grid; gap: 10px; }
+.hero h1 { margin: 0; font-size: 1.7rem; line-height: 1.1; letter-spacing: -.02em; }
+.hero h1 span { color: #c8f560; }
+.hero p { margin: 0; font-size: .82rem; opacity: .8; max-width: 34ch; }
+.hero .cta { justify-self: start; background: #c8f560; color: #0f2a2b; font-weight: 700; font-size: .78rem; padding: 8px 14px; border-radius: 999px; }
+.site-page h2 { margin: 22px 22px 10px; font-size: 1.05rem; }
+.feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 16px; }
+.feats div { background: #f3f5f2; border-radius: 12px; padding: 12px; font-size: .72rem; color: #44514f; }
+.feats b { display: block; font-size: .78rem; color: #0f2a2b; margin-bottom: 4px; }
+.pics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 16px; }
+.pics div { height: 84px; border-radius: 12px; background: linear-gradient(135deg, #7fb2c9, #f2c38b); }
+.pics div:nth-child(2) { background: linear-gradient(135deg, #d98f73, #4b6e9e); }
+.pics div:nth-child(3) { background: linear-gradient(135deg, #8bc9a2, #2f5d7a); }
+.faq { margin: 0 16px; display: grid; gap: 6px; }
+.faq div { border: 1px solid #e3e7e5; border-radius: 10px; padding: 9px 12px; font-size: .74rem; font-weight: 600; }
+/* overlay */
+.scan { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .25s; }
+.browser.busy .scan { opacity: 1; }
+.scan .tint { position: absolute; inset: 0; background: rgb(91 92 240 / .06); }
+.scan .beam { position: absolute; left: 0; right: 0; height: 90px; top: -90px; background: linear-gradient(180deg, transparent, rgb(91 92 240 / .16) 70%, rgb(91 92 240 / .55) 98%, transparent); }
+.scan .beam::after { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; background: #5b5cf0; box-shadow: 0 0 14px 2px rgb(91 92 240 / .7); }
+.browser.busy .scan .beam { animation: beam 2.4s cubic-bezier(.45, 0, .55, 1) forwards; }
+@keyframes beam { to { top: 100%; } }
+[data-read] { position: relative; }
+[data-read]::after { content: attr(data-read); position: absolute; top: -9px; left: 8px; font: 700 9px/1 var(--mono); letter-spacing: .04em; padding: 3px 6px; border-radius: 6px; background: #5b5cf0; color: #fff; opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .2s; z-index: 2; }
+nav[data-read]::after { top: 4px; left: auto; right: 8px; }
+[data-read].seen { outline: 2px solid #5b5cf0; outline-offset: 3px; border-radius: 10px; }
+[data-read].seen::after { opacity: 1; transform: none; }
+.done-badge { position: absolute; right: 16px; bottom: 16px; background: #16154a; color: #fff; font-size: .78rem; font-weight: 700; padding: 9px 14px; border-radius: 999px; display: flex; gap: 8px; align-items: center; opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; }
+.done-badge.show { opacity: 1; transform: none; }
+.done-badge i { width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; }
+.hint { font-size: .8rem; color: var(--stage-ink-2); text-align: center; max-width: 560px; }
 
 /* Captures-style action tiles */
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -104,7 +170,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 /* Captures-style rows */
 .rows { display: grid; gap: 10px; }
 .row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--row); font-weight: 600; font-size: .92em; width: 100%; }
-.row:hover { background: var(--tint); }
+.row:hover { background: var(--row-hover); }
 .row svg { width: 19px; height: 19px; flex-shrink: 0; color: var(--ink-2); }
 .row .grow { flex: 1; min-width: 0; }
 .row .chev { width: 16px; height: 16px; color: var(--ink-3); }
@@ -166,9 +232,31 @@ pre.md .lk { color: var(--green); }
 <div class="stage">
   <header>
     <h1>VaksKit · side panel</h1>
-    <p>Built from your references: Jets and Captures. Home and Markdown, in light and dark. Every tile, row and switch works. Data: the real Markdown VaksKit now produces for holdmyseatnow.com.</p>
+    <p>Built from your references: Jets and Captures. Home and Markdown, in light and dark. Press ↻ on the site row to watch an analysis: the panel says what it reads while a scan line passes over the website. Every tile, row and switch works. Data: the real Markdown VaksKit now produces for holdmyseatnow.com.</p>
   </header>
   <div class="frames">
+    <div class="frame-wrap">
+      <div class="browser" id="browser">
+        <div class="chrome"><i></i><i></i><i></i><span>holdmyseatnow.com</span><b title="VaksKit" aria-label="VaksKit"><u></u><u></u><u></u><u></u></b></div>
+        <div class="site-page">
+          <nav data-read="NAV"><b>Hold My Seat Now</b><span>Flights · How it works · FAQ</span></nav>
+          <section class="hero" data-read="H1">
+            <h1>Book your flight now.<br /><span>Pay over time.</span></h1>
+            <p>Traveling shouldn’t drain your wallet. We secure your ticket instantly with flexible repayment options.</p>
+            <span class="cta" data-read="LINK">Secure your trip</span>
+          </section>
+          <h2 data-read="H2">Travel smarter, not harder</h2>
+          <div class="feats" data-read="H3 × 3"><div><b>Tickets secured</b>We purchase your tickets immediately.</div><div><b>Flexible plans</b>Weekly, biweekly or monthly.</div><div><b>Low fees</b>12% to 20% upfront.</div></div>
+          <h2 data-read="H2">Popular destinations</h2>
+          <div class="pics" data-read="IMG × 3 · alt ✓"><div></div><div></div><div></div></div>
+          <h2 data-read="H2">Questions? We've got answers.</h2>
+          <div class="faq"><div>How does it work?</div><div>Is there a credit check?</div></div>
+          <div class="scan"><div class="tint"></div><div class="beam"></div></div>
+          <div class="done-badge" id="done"><i></i>VaksKit read 556 words</div>
+        </div>
+      </div>
+      <span>The website · press ↻ in a panel to watch VaksKit read it</span>
+    </div>
     <div class="frame-wrap"><div class="vk" data-screen="home"></div><span>Home · light</span></div>
     <div class="frame-wrap"><div class="vk" data-screen="markdown"></div><span>Markdown · light</span></div>
     <div class="frame-wrap"><div class="vk dark" data-screen="home"></div><span>Home · dark</span></div>
@@ -238,12 +326,12 @@ Split your payments into weekly, biweekly, or monthly installments that fit your
     .replace(/(\]\()([^)]+)(\))/g, '$1<span class="lk">$2</span>$3');
 
   const head = (vk, s) => s === 'home'
-    ? `<div class="head"><div class="brand"><span class="logo">${I.logo}</span>VaksKit</div>
+    ? `<div class="head"><div class="brand"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>VaksKit</div>
         <div class="head-actions"><button class="ibtn" data-act="theme" aria-label="Switch theme">${vk.classList.contains('dark') ? I.moon : I.sun}</button><button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`
     : `<div class="head"><button class="brand" data-go="home" style="gap:8px"><span class="ibtn" style="width:32px;height:32px;background:var(--row)">${I.back}</span>${s === 'markdown' ? 'Markdown' : 'SEO checks'}</button>
         <div class="head-actions"><button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`;
 
-  const site = `<div class="site"><span class="fav">HM</span><div class="txt"><b>holdmyseatnow.com</b><small><i></i>Analyzed just now</small></div><button class="ibtn" aria-label="Analyze again" data-act="toast" data-msg="Analyzed again">${I.refresh}</button></div>`;
+  const site = `<div class="site"><span class="fav">HM</span><div class="txt"><b>holdmyseatnow.com</b><small><i></i>Analyzed just now</small></div><button class="ibtn" aria-label="Analyze again" data-act="analyze">${I.refresh}</button><span class="bar"></span></div>`;
 
   function home() {
     return `<div class="body">
@@ -298,6 +386,47 @@ Split your payments into weekly, biweekly, or monthly installments that fit your
     vk.appendChild(t); setTimeout(() => t.remove(), 1600);
   }
   document.querySelectorAll('.vk').forEach(render);
+  // ---- analyzing: panel steps + scan over the website ----
+  const STEPS = ['Reading meta tags…', 'Reading headings…', 'Checking images…', 'Converting to Markdown…', 'Looking for llms.txt…'];
+  let scanning = false;
+  function analyze(vk) {
+    if (vk.classList.contains('busy')) return;
+    vk.classList.add('busy');
+    const small = vk.querySelector('.site small'), bar = vk.querySelector('.site .bar');
+    const label = () => small && (small.lastChild.textContent = STEPS[step] || '');
+    let step = 0;
+    if (small) small.innerHTML = '<i></i>' + STEPS[0];
+    const t = setInterval(() => {
+      step++;
+      if (bar) bar.style.width = Math.min(100, (step / STEPS.length) * 100) + '%';
+      if (step < STEPS.length) return label();
+      clearInterval(t);
+      setTimeout(() => { vk.classList.remove('busy'); render(vk); toast(vk, 'Analyzed · 92/100'); }, 350);
+    }, 520);
+    if (bar) bar.style.width = '8%';
+    scanPage();
+  }
+  function scanPage() {
+    const b = document.getElementById('browser'); if (!b || scanning) return;
+    scanning = true;
+    const done = document.getElementById('done');
+    done.classList.remove('show');
+    const page = b.querySelector('.site-page');
+    const els = [...page.querySelectorAll('[data-read]')];
+    els.forEach((el) => el.classList.remove('seen'));
+    b.classList.remove('busy'); void b.offsetWidth; b.classList.add('busy');
+    const H = page.clientHeight, dur = 2400;
+    els.forEach((el) => {
+      const y = el.offsetTop + 20;
+      setTimeout(() => el.classList.add('seen'), Math.min(dur, (y / H) * dur));
+    });
+    setTimeout(() => {
+      b.classList.remove('busy'); done.classList.add('show');
+      setTimeout(() => { els.forEach((el) => el.classList.remove('seen')); }, 900);
+      setTimeout(() => { done.classList.remove('show'); scanning = false; }, 2600);
+    }, dur + 150);
+  }
+
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button'); const vk = e.target.closest('.vk');
     if (!b || !vk) return;
@@ -305,6 +434,7 @@ Split your payments into weekly, biweekly, or monthly installments that fit your
     if (b.dataset.view) { vk.dataset.view = b.dataset.view; return render(vk); }
     if (b.dataset.act === 'theme') { vk.classList.toggle('dark'); return render(vk); }
     if (b.dataset.act === 'toast') return toast(vk, b.dataset.msg);
+    if (b.dataset.act === 'analyze') return analyze(vk);
   });
 })();
 </script>
