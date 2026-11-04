@@ -18,13 +18,11 @@
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/plus-jakarta-sans": "^5.3.0",
-    "class-variance-authority": "^0.7.0",
     "defuddle": "^0.19.6",
     "dompurify": "^3.4.17",
     "marked": "^18.1.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-syntax-highlighter": "^15.5.0",
     "turndown": "^7.2.5",
     "turndown-plugin-gfm": "^1.0.2"
   },
@@ -35,7 +33,6 @@
     "@types/node": "^20.14.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@types/turndown": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
@@ -47,5 +44,13 @@
     "typescript": "^5.4.5",
     "vite": "^5.2.0"
   },
-  "description": "Chrome extension: page to Markdown, Markdown to HTML, and SEO export (JSON, TypeScript, HTML, Markdown)."
+  "description": "Chrome extension to understand any web page: SEO export (JSON, TypeScript, HTML), page to Markdown, fonts and type scale, Markdown to HTML.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joe-watson-dev/vakskit.git"
+  },
+  "homepage": "https://github.com/joe-watson-dev/vakskit#readme",
+  "bugs": {
+    "url": "https://github.com/joe-watson-dev/vakskit/issues"
+  }
 }
