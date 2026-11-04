@@ -9,6 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <style>
+.picker { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .8rem; color: var(--stage-ink-2); margin-top: 12px; }
+.picker button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 6px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--stage-ink) 15%, transparent); color: var(--stage-ink); font-size: .82rem; }
+.picker button::before { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--sw); }
+.picker button[aria-pressed="true"] { border-color: var(--stage-ink); box-shadow: 0 0 0 1px var(--stage-ink); }
 /* Follows the user's references (Jets, Captures): white airy surface, large soft corners,
    one vivid brand colour only on the main action (with a coloured glow), a full-width pill
    switch, soft grey rows with chevrons, outlined tinted tags, navy text, Plus Jakarta Sans. */
@@ -82,7 +86,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; text-align: i
 .ibtn { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); }
 .ibtn:hover { background: var(--row); color: var(--ink); }
 .ibtn svg { width: 17px; height: 17px; }
-.body { flex: 1; overflow-y: auto; padding: 0 16px 18px; display: grid; gap: 10px; align-content: start; }
+.body { flex: 1; overflow-y: auto; padding: 4px 16px 18px; display: grid; gap: 12px; align-content: start; }
 
 .site { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--row); }
 .fav { width: 28px; height: 28px; border-radius: 8px; background: #0f3d3e; color: #c8f560; display: grid; place-items: center; font-weight: 800; font-size: .72em; flex-shrink: 0; }
@@ -150,8 +154,8 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 .hint { font-size: .8rem; color: var(--stage-ink-2); text-align: center; max-width: 560px; }
 
 /* Captures-style action tiles */
-.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.tile { border-radius: 18px; padding: 14px; min-height: 124px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; text-align: left; transition: transform .15s ease, box-shadow .15s ease; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile { border-radius: 18px; padding: 16px; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; text-align: left; transition: transform .15s ease, box-shadow .15s ease; }
 .tile:hover { transform: translateY(-2px); }
 .tile .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
 .tile .ic svg { width: 17px; height: 17px; }
@@ -167,13 +171,16 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 .score { font-size: 1.9em; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
 .score span { font-size: .42em; font-weight: 600; opacity: .75; letter-spacing: 0; margin-left: 2px; }
 
-.label { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.label { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
 .label h2 { margin: 0; font-size: 1.02em; font-weight: 700; letter-spacing: -.01em; }
 .label button { font-size: .8em; font-weight: 600; color: var(--primary); }
 
 /* Captures-style rows */
-.rows { display: grid; gap: 6px; }
-.row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--row); font-weight: 600; font-size: .9em; width: 100%; }
+.rows { display: grid; gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--row); font-weight: 600; font-size: .9em; width: 100%; text-align: left; }
+.row .grow small { display: block; margin-top: 2px; font-size: .86em; font-weight: 500; color: var(--ink-3); }
+.row .ri { width: 32px; height: 32px; border-radius: 10px; background: var(--surface); display: grid; place-items: center; flex-shrink: 0; }
+.vk.dark .row .ri { background: #2a2a31; }
 .row:hover { background: var(--row-hover); }
 .row svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--ink-2); }
 .row .grow { flex: 1; min-width: 0; }
@@ -248,6 +255,15 @@ pre.md .bq { display: block; border-left: 3px solid var(--border); padding-left:
   <header>
     <h1>VaksKit · side panel</h1>
     <p>Built from your references: Jets and Captures. Home and Markdown, in light and dark. Press ↻ on the site row to watch an analysis: the panel says what it reads while a scan line passes over the website. Every tile, row and switch works. Data: the real Markdown VaksKit now produces for holdmyseatnow.com.</p>
+    <div class="picker" role="group" aria-label="Primary colour"><span>Primary colour:</span>
+      <button data-c="#5b5cf0,#7a7bf7,#6f70ff,#8b8cff,#ffffff" style="--sw:#5b5cf0" aria-pressed="false">Indigo</button>
+      <button data-c="#1f6feb,#4a8cf3,#4c8dff,#6ea3ff,#ffffff" style="--sw:#1f6feb" aria-pressed="false">Blue</button>
+      <button data-c="#0d8f7a,#1fb39a,#2ccfb2,#4fe0c6,#04201b" style="--sw:#0d8f7a" aria-pressed="false">Teal</button>
+      <button data-c="#7442e6,#9066f2,#a283ff,#b9a1ff,#ffffff" style="--sw:#7442e6" aria-pressed="false">Violet</button>
+      <button data-c="#16803c,#22a04f,#3ccb6b,#5fdb87,#04170b" style="--sw:#16803c" aria-pressed="false">Green</button>
+      <button data-c="#151518,#2b2b30,#f2f2f4,#ffffff,#151518" style="--sw:#151518" aria-pressed="false">Black</button>
+      <button data-c="#d6461a,#f26a3a,#ff7043,#ff8a5f,#160a05" style="--sw:#d6461a" aria-pressed="true">Orange (now)</button>
+    </div>
   </header>
   <div class="frames">
     <div class="frame-wrap">
@@ -374,12 +390,12 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
         <button class="tile primary" data-go="seo"><span class="ic">${I.gauge}</span><span><span class="score">92<span>/100</span></span><b>SEO report</b><small>2 things to improve</small></span></button>
         <button class="tile soft" data-go="markdown"><span class="ic">${I.doc}</span><span><b>Markdown</b><small>556 words · tap to copy</small></span></button>
       </div>
-      <div class="label"><h2>Quick actions</h2></div>
+      <div class="label"><h2>Use in your project</h2></div>
       <div class="rows">
-        <button class="row" data-act="toast" data-msg="SEO copied as JSON">${I.braces}<span class="grow">Export SEO</span><span class="tag violet">JSON · TS</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="Share card preview">${I.share}<span class="grow">Share preview</span><span class="tag green">Ready</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="llms.txt and AI crawlers">${I.bot}<span class="grow">AI readers</span><span class="tag orange">No llms.txt</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="Markdown → HTML converter">${I.code}<span class="grow">Markdown → HTML</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="SEO copied as JSON"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as JSON<small>Title, meta, Open Graph, JSON-LD</small></span><span class="tag grey">.json</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="SEO copied as TypeScript"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as TypeScript<small>A typed object, ready to import</small></span><span class="tag grey">.ts</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Saved holdmyseatnow-com.md"><span class="ri">${I.down}</span><span class="grow">Download page as Markdown<small>556 words, front-matter included</small></span><span class="tag grey">.md</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Markdown → HTML converter"><span class="ri">${I.code}</span><span class="grow">Markdown → HTML<small>Paste Markdown, get clean HTML</small></span><span class="tag grey">.html</span>${I.chev}</button>
       </div>
     </div>`;
   }
@@ -471,6 +487,17 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
     if (b.dataset.act === 'analyze') return analyze(vk);
   });
 })();
+  // primary colour picker: light primary, light gradient top, dark primary, dark gradient top, text on dark primary
+  const picks = document.querySelector('.picker');
+  const css = document.createElement('style'); document.head.appendChild(css);
+  picks.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-c]'); if (!b) return;
+    const [p, p2, d, d2, onD] = b.dataset.c.split(',');
+    const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(' ');
+    css.textContent = `.vk { --primary: ${p}; --primary-2: ${p2}; --glow: rgb(${rgb(p)} / .32); --tint: color-mix(in oklab, ${p} 10%, white); --tag-violet: ${p}; }
+      .vk.dark { --primary: ${d}; --primary-2: ${d2}; --on-primary: ${onD}; --glow: rgb(${rgb(d)} / .25); --tint: color-mix(in oklab, ${d} 16%, transparent); --tag-violet: ${d}; }`;
+    picks.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  });
 </script>
 </body>
 </html>
