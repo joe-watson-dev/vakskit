@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PageKit UI Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+/* Layout idea: a real-size extension frame on a quiet stage; controls above switch width, theme and state.
+   The stage follows the viewer's theme; the frame has its own Light / Dark / System switch. */
+:root {
+  --stage: #eef0f4;
+  --stage-ink: #141a26;
+  --stage-ink-2: #5a6475;
+  --stage-line: #d9dde5;
+  --stage-surface: #ffffff;
+  --font-ui: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --stage: #07090e; --stage-ink: #e6eaf1; --stage-ink-2: #98a2b3; --stage-line: #222a38; --stage-surface: #0f141e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --stage: #07090e; --stage-ink: #e6eaf1; --stage-ink-2: #98a2b3; --stage-line: #222a38; --stage-surface: #0f141e;
+  color-scheme: dark;
+}
+
+/* ---------- Extension frame tokens (light), swapped by .pk.dark ---------- */
+.pk {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef0f4;
+  --ink: #0f1729;
+  --ink-2: #4a5468;
+  --ink-3: #7a8496;
+  --line: #e1e5ec;
+  --accent: #2b4eff;
+  --accent-hover: #1f3ee6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e9eeff;
+  --accent-text: #2440d6;
+  --good: #0f7a55; --good-soft: #e2f4ea;
+  --warn: #9a5200; --warn-soft: #fff0d9;
+  --bad: #c0283b; --bad-soft: #fde8eb;
+  --code-key: #2440d6; --code-str: #0f7a55; --code-num: #9a5200; --code-tag: #8a2bb5;
+  --shadow: 0 1px 2px rgb(15 23 41 / .06), 0 12px 32px -12px rgb(15 23 41 / .18);
+  /* fluid type + spacing, relative to the frame's width (container queries) */
+  --t-2xs: clamp(.6875rem, .62rem + .25cqi, .75rem);
+  --t-xs: clamp(.75rem, .68rem + .3cqi, .875rem);
+  --t-sm: clamp(.8125rem, .74rem + .35cqi, 1rem);
+  --t-base: clamp(.875rem, .8rem + .4cqi, 1.0625rem);
+  --t-lg: clamp(1.0625rem, .95rem + .6cqi, 1.375rem);
+  --t-xl: clamp(1.375rem, 1.1rem + 1.2cqi, 2rem);
+  --s-tight: clamp(.375rem, .3rem + .35cqi, .625rem);
+  --s-pad: clamp(.875rem, .6rem + 1.4cqi, 2rem);
+  --s-stack: clamp(1rem, .7rem + 1.4cqi, 2rem);
+  color-scheme: light;
+}
+.pk.dark {
+  --bg: #0b0f17;
+  --surface: #121826;
+  --surface-2: #1a2232;
+  --ink: #e8ecf3;
+  --ink-2: #a9b2c3;
+  --ink-3: #7d879a;
+  --line: #263043;
+  --accent: #6b86ff;
+  --accent-hover: #8299ff;
+  --accent-ink: #0b0f17;
+  --accent-soft: #1b2447;
+  --accent-text: #9db0ff;
+  --good: #46d39f; --good-soft: #0e2a20;
+  --warn: #f5b041; --warn-soft: #2d2210;
+  --bad: #ff7b8b; --bad-soft: #341a21;
+  --code-key: #9db0ff; --code-str: #46d39f; --code-num: #f5b041; --code-tag: #d59bff;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 16px 40px -12px rgb(0 0 0 / .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--stage);
+  color: var(--stage-ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--accent, #2b4eff); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---------- Stage ---------- */
+.stage { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 18px; }
+.stage-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.stage-head h1 { margin: 0; font-size: 1.35rem; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+.stage-head p { margin: 4px 0 0; color: var(--stage-ink-2); font-size: .9rem; max-width: 62ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.control { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--stage-ink-2); }
+.seg { display: inline-flex; padding: 3px; border-radius: 9px; background: var(--stage-surface); border: 1px solid var(--stage-line); }
+.seg button { border: 0; background: transparent; padding: 6px 11px; border-radius: 6px; font-size: .78rem; font-weight: 500; color: var(--stage-ink-2); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--stage-ink); color: var(--stage); }
+.screens { display: flex; flex-wrap: wrap; gap: 6px; }
+.screens button { border: 1px solid var(--stage-line); background: var(--stage-surface); color: var(--stage-ink-2); padding: 5px 10px; border-radius: 999px; font-size: .75rem; }
+.screens button[aria-current="true"] { color: var(--stage-ink); border-color: var(--stage-ink); }
+.viewport { display: flex; justify-content: center; align-items: flex-start; gap: 28px; flex-wrap: wrap; }
+.notes { max-width: 320px; font-size: .84rem; color: var(--stage-ink-2); line-height: 1.55; }
+.notes h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--stage-ink); margin: 0 0 8px; }
+.notes ul { margin: 0 0 16px; padding-left: 18px; display: grid; gap: 6px; }
+.notes b { color: var(--stage-ink); font-weight: 600; }
+.chrome { border-radius: 14px; background: #2b2f38; padding: 0 0 6px; box-shadow: 0 24px 60px -24px rgb(0 0 0 / .45); }
+.chrome-bar { display: flex; align-items: center; gap: 8px; padding: 9px 12px; color: #d6dae3; font-size: .8rem; font-weight: 600; }
+.chrome-bar .dot { width: 18px; height: 18px; border-radius: 5px; background: #2b4eff; display: grid; place-items: center; }
+.chrome-bar .sp { flex: 1; }
+.chrome-bar svg { width: 15px; height: 15px; opacity: .7; }
+
+/* ---------- Extension frame ---------- */
+.pk {
+  container-type: inline-size;
+  width: 380px; height: 760px;
+  background: var(--bg); color: var(--ink);
+  border-radius: 10px; margin: 0 6px; overflow: hidden;
+  display: flex; flex-direction: column; position: relative;
+  font-size: var(--t-base);
+  transition: width .25s ease;
+}
+.pk[data-size="wide"] { width: 560px; }
+.pk[data-size="full"] { width: min(1180px, calc(100vw - 48px)); height: 780px; }
+.icon { width: 1.1em; height: 1.1em; flex-shrink: 0; }
+
+.pk-shell { display: flex; flex: 1; min-height: 0; }
+.pk-side { display: none; }
+.pk-main { flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; }
+.pk-scroll { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+.pk-body { grid-template-columns: minmax(0, 1fr); padding: var(--s-pad); padding-bottom: 72px; display: grid; gap: var(--s-stack); max-width: 980px; margin: 0 auto; }
+
+/* header */
+.pk-head { grid-template-columns: minmax(0, 1fr); background: color-mix(in oklab, var(--bg) 92%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: var(--s-tight) var(--s-pad) 0; display: grid; gap: var(--s-tight); position: relative; z-index: 3; }
+.pk-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-tight); }
+.brand { display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 0; font-weight: 650; font-size: var(--t-sm); letter-spacing: -.01em; }
+.mark { width: 1.7em; height: 1.7em; border-radius: .45em; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.mark svg { width: 1em; height: 1em; }
+.tools { display: flex; gap: 4px; }
+.ibtn { width: 2.1em; height: 2.1em; display: grid; place-items: center; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--ink-2); font-size: var(--t-sm); }
+.ibtn:hover { background: var(--surface-2); color: var(--ink); }
+.pagechip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.fav { width: 2em; height: 2em; border-radius: 7px; background: linear-gradient(135deg, #1f2b46, #3a4a74); color: #fff; display: grid; place-items: center; font-size: var(--t-2xs); font-weight: 700; flex-shrink: 0; }
+.pagechip .meta { min-width: 0; flex: 1; }
+.pagechip .t { font-size: var(--t-xs); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pagechip .u { font-size: var(--t-2xs); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; gap: 6px; align-items: center; }
+.live { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px var(--good-soft); flex-shrink: 0; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .45em; white-space: nowrap; flex-shrink: 0; border-radius: 8px; padding: .55em .85em; font-size: var(--t-xs); font-weight: 550; line-height: 1; border: 1px solid var(--line); background: var(--surface); color: var(--ink); transition: background .15s, border-color .15s; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { background: var(--accent-hover); }
+.btn.big { font-size: var(--t-sm); padding: .8em 1.2em; border-radius: 10px; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--accent-text); padding-inline: .4em; }
+
+.tabs { display: flex; gap: 2px; margin-bottom: -1px; }
+.tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: .4em; white-space: nowrap; border: 0; background: none; padding: .75em .3em .7em; font-size: var(--t-xs); font-weight: 550; color: var(--ink-3); border-bottom: 2px solid transparent; }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+@container (max-width: 420px) { .tab .icon { display: none; } }
+
+/* full view: sidebar navigation */
+.pk[data-size="full"] .pk-side { display: flex; flex-direction: column; gap: 14px; width: 248px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 16px; background: var(--surface); }
+.pk[data-size="full"] .tabs, .pk[data-size="full"] .pk-head .pagechip { display: none; }
+.side-nav { display: grid; gap: 2px; }
+.side-nav button { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 9px 10px; border-radius: 8px; font-size: var(--t-sm); color: var(--ink-2); text-align: left; }
+.side-nav button:hover { background: var(--surface-2); color: var(--ink); }
+.side-nav button[aria-current="page"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+.side-nav .count { margin-left: auto; font-size: var(--t-2xs); background: var(--warn-soft); color: var(--warn); border-radius: 999px; padding: 1px 7px; font-weight: 600; }
+.side-foot { margin-top: auto; font-size: var(--t-2xs); color: var(--ink-3); line-height: 1.5; }
+
+/* shared blocks */
+.label { font-size: var(--t-2xs); font-weight: 650; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+.sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-tight); }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.pad { padding: clamp(.8rem, .6rem + 1cqi, 1.25rem); }
+.muted { color: var(--ink-2); }
+.small { font-size: var(--t-xs); }
+.tiny { font-size: var(--t-2xs); }
+.row { display: flex; align-items: center; gap: var(--s-tight); flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+.grid-2 { display: grid; gap: var(--s-tight); grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 9px; font-size: var(--t-2xs); font-weight: 600; white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.neutral { background: var(--surface-2); color: var(--ink-2); }
+.pill.accent { background: var(--accent-soft); color: var(--accent-text); }
+
+/* home */
+.health { display: grid; grid-template-columns: auto 1fr; gap: clamp(.8rem, .5rem + 1.5cqi, 1.5rem); align-items: center; }
+.ring { position: relative; width: clamp(76px, 60px + 6cqi, 112px); aspect-ratio: 1; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .n { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring .n b { font-size: var(--t-xl); font-weight: 700; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ring .n span { font-size: var(--t-2xs); color: var(--ink-3); }
+.health h2 { margin: 0 0 4px; font-size: var(--t-lg); font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+.actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: 6px; }
+.action { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: .8em .9em; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); text-align: left; font-size: var(--t-xs); font-weight: 600; }
+.action:hover { border-color: var(--accent); }
+.action .icon { color: var(--accent-text); width: 1.25em; height: 1.25em; }
+.action small { font-weight: 400; color: var(--ink-3); font-size: var(--t-2xs); }
+.list { display: grid; }
+.list-item { display: flex; align-items: center; gap: 12px; padding: .85em clamp(.8rem, .6rem + 1cqi, 1.25rem); border: 0; border-top: 1px solid var(--line); background: none; text-align: left; width: 100%; }
+.list-item:first-child { border-top: 0; }
+.list-item:hover { background: var(--surface-2); }
+.list-item .ic { width: 2.2em; height: 2.2em; border-radius: 9px; background: var(--accent-soft); color: var(--accent-text); display: grid; place-items: center; flex-shrink: 0; }
+.list-item .txt { flex: 1; min-width: 0; }
+.list-item .txt b { display: block; font-size: var(--t-sm); font-weight: 600; }
+.list-item .txt span { display: block; font-size: var(--t-xs); color: var(--ink-2); }
+.list-item .chev { color: var(--ink-3); }
+.teaser { border-style: dashed; background: transparent; }
+
+/* SEO */
+.subnav { position: sticky; top: 0; z-index: 2; background: var(--bg); margin: calc(var(--s-pad) * -1) calc(var(--s-pad) * -1) 0; padding: var(--s-tight) var(--s-pad); display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .4em .8em; font-size: var(--t-2xs); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.serp { display: grid; gap: 3px; }
+.serp .site { display: flex; align-items: center; gap: 8px; font-size: var(--t-2xs); color: var(--ink-2); }
+.serp .site .fav { width: 1.7em; height: 1.7em; border-radius: 50%; font-size: 9px; }
+.serp .ttl { font-size: var(--t-lg); color: var(--accent-text); line-height: 1.3; font-weight: 450; }
+.serp .dsc { font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; }
+.serp.mobile { max-width: 330px; }
+.checks { display: grid; }
+.check { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: .75em clamp(.8rem, .6rem + 1cqi, 1.25rem); border-top: 1px solid var(--line); }
+.check:first-child { border-top: 0; }
+.check .pill { align-self: start; min-width: 5.6em; justify-content: center; }
+.check b { font-size: var(--t-xs); font-weight: 600; }
+.check p { grid-column: 2; margin: 0; font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; }
+details.passed summary { list-style: none; cursor: pointer; padding: .75em clamp(.8rem, .6rem + 1cqi, 1.25rem); border-top: 1px solid var(--line); font-size: var(--t-xs); color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+details.passed summary::-webkit-details-marker { display: none; }
+details.passed ul { margin: 0; padding: 0 1.25rem 1rem 2.6rem; display: grid; gap: 4px; font-size: var(--t-xs); color: var(--ink-2); }
+.kv { display: grid; }
+.kv-row { display: grid; grid-template-columns: minmax(6em, 24%) 1fr; gap: 10px; padding: .7em clamp(.8rem, .6rem + 1cqi, 1.25rem); border-top: 1px solid var(--line); font-size: var(--t-xs); }
+.kv-row:first-child { border-top: 0; }
+.kv-row dt { color: var(--ink-3); }
+.kv-row dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.meter { height: 4px; border-radius: 99px; background: var(--surface-2); margin-top: 6px; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: inherit; }
+.og { overflow: hidden; }
+.og-img { aspect-ratio: 1200 / 630; background: radial-gradient(120% 100% at 85% 10%, #3a4a74 0%, #141b2e 55%, #0b0f17 100%); color: #e8ecf3; display: flex; flex-direction: column; justify-content: flex-end; padding: 6% 7%; gap: 4px; }
+.og-img b { font-size: clamp(1rem, .8rem + 1.2cqi, 1.6rem); letter-spacing: -.01em; }
+.og-img span { font-size: var(--t-2xs); opacity: .7; }
+.og-meta { padding: .7em .9em; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.og-meta .d { font-size: var(--t-2xs); color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.og-meta b { font-size: var(--t-xs); }
+.outline { display: grid; gap: 2px; padding: .7em clamp(.8rem, .6rem + 1cqi, 1.25rem); font-size: var(--t-xs); }
+.outline div { display: flex; gap: 8px; align-items: baseline; }
+.outline code { font-family: var(--font-mono); font-size: var(--t-2xs); color: var(--accent-text); width: 1.8em; flex-shrink: 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.8rem, 1fr)); gap: 6px; }
+.stat { padding: .6em .7em; }
+.stat b { display: block; font-size: var(--t-lg); font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.stat span { font-size: var(--t-2xs); color: var(--ink-3); }
+.code { font-family: var(--font-mono); font-size: var(--t-xs); line-height: 1.65; padding: clamp(.8rem, .6rem + 1cqi, 1.25rem); margin: 0; overflow: auto; max-height: 340px; white-space: pre-wrap; word-break: break-word; tab-size: 2; }
+.code .k { color: var(--code-key); } .code .s { color: var(--code-str); } .code .n { color: var(--code-num); } .code .t { color: var(--code-tag); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.toolbar .row { gap: 6px; }
+.segs { display: inline-flex; background: var(--surface-2); border-radius: 9px; padding: 3px; }
+.segs button { border: 0; background: none; padding: .45em .8em; border-radius: 6px; font-size: var(--t-xs); font-weight: 550; color: var(--ink-2); white-space: nowrap; }
+.segs button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.hint { font-size: var(--t-2xs); color: var(--ink-3); }
+
+/* markdown + converter */
+.doc { padding: clamp(1rem, .7rem + 2cqi, 2.25rem); font-size: var(--t-sm); line-height: 1.7; max-height: 520px; overflow: auto; }
+.doc h1 { font-size: var(--t-xl); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 .5em; text-wrap: balance; }
+.doc h2 { font-size: var(--t-lg); margin: 1.4em 0 .4em; }
+.doc h3 { font-size: var(--t-base); margin: 1.2em 0 .3em; }
+.doc p { margin: 0 0 .9em; max-width: 68ch; }
+.doc a { color: var(--accent-text); }
+.doc code { font-family: var(--font-mono); font-size: .88em; background: var(--surface-2); padding: .1em .35em; border-radius: 4px; }
+.doc pre { background: var(--surface-2); padding: 1em; border-radius: 8px; overflow: auto; }
+.doc pre code { background: none; padding: 0; }
+.doc ul { padding-left: 1.2em; }
+.doc blockquote { margin: 0 0 1em; border-left: 3px solid var(--line); padding-left: 1em; color: var(--ink-2); }
+.doc table { border-collapse: collapse; } .doc th, .doc td { border: 1px solid var(--line); padding: .35em .7em; }
+.split { display: grid; gap: var(--s-tight); }
+@container (min-width: 760px) { .split.two { grid-template-columns: 1fr 1fr; } }
+textarea.editor { width: 100%; min-height: 260px; resize: vertical; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 1em; font-family: var(--font-mono); font-size: var(--t-xs); line-height: 1.65; }
+textarea.editor:focus { border-color: var(--accent); }
+.opt { display: flex; align-items: center; gap: 8px; font-size: var(--t-xs); color: var(--ink-2); }
+.opt input { accent-color: var(--accent); width: 1em; height: 1em; }
+
+/* files */
+.file-row { display: flex; align-items: center; gap: 10px; padding: .7em clamp(.8rem, .6rem + 1cqi, 1.25rem); border-top: 1px solid var(--line); font-size: var(--t-xs); }
+.file-row:first-child { border-top: 0; }
+.file-row code { font-family: var(--font-mono); flex: 1; }
+.file-row[aria-selected="true"] { background: var(--accent-soft); }
+
+/* history */
+.hist-item { display: flex; align-items: center; gap: 10px; padding: .75em clamp(.8rem, .6rem + 1cqi, 1.25rem); border-top: 1px solid var(--line); }
+.hist-item:first-child { border-top: 0; }
+.hist-item .txt { flex: 1; min-width: 0; }
+.hist-item .txt b { display: block; font-size: var(--t-xs); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-item .txt span { display: block; font-size: var(--t-2xs); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-item.current { background: var(--accent-soft); }
+.ibtn.danger:hover { background: var(--bad-soft); color: var(--bad); }
+.btn.danger { color: var(--bad); border-color: color-mix(in oklab, var(--bad) 35%, var(--line)); }
+.btn.danger:hover { background: var(--bad-soft); }
+.btn.danger-solid { background: var(--bad); border-color: var(--bad); color: #fff; }
+.confirm { margin: auto; width: min(90%, 360px); background: var(--surface); border-radius: 14px; padding: var(--s-pad); display: grid; gap: 12px; box-shadow: var(--shadow); animation: up .15s ease; }
+.confirm h3 { margin: 0; font-size: var(--t-base); }
+.confirm p { margin: 0; font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; }
+.storage { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.storage i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+
+/* first run */
+.onboard { display: grid; gap: var(--s-stack); text-align: left; padding-top: 8px; }
+.onboard h2 { font-size: var(--t-xl); margin: 0; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+.steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; font-size: var(--t-sm); color: var(--ink-2); }
+.steps li::before { counter-increment: s; content: counter(s); width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--accent-soft); color: var(--accent-text); display: grid; place-items: center; font-size: var(--t-2xs); font-weight: 700; }
+.steps b { color: var(--ink); font-weight: 600; }
+.skeleton { display: grid; gap: 10px; }
+.sk { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--surface-2), var(--line), var(--surface-2)); background-size: 200% 100%; animation: sh 1.1s linear infinite; }
+@keyframes sh { to { background-position: -200% 0; } }
+
+/* overlays */
+.scrim { position: absolute; inset: 0; background: rgb(8 12 20 / .35); z-index: 10; display: flex; }
+.sheet { margin-top: auto; width: 100%; background: var(--surface); border-radius: 16px 16px 0 0; padding: var(--s-pad); display: grid; gap: var(--s-stack); box-shadow: var(--shadow); max-height: 85%; overflow: auto; animation: up .2s ease; }
+.pk[data-size="full"] .sheet { margin: auto; width: 520px; border-radius: 16px; }
+@keyframes up { from { transform: translateY(16px); opacity: .5; } }
+.setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: .7em 0; border-top: 1px solid var(--line); font-size: var(--t-sm); }
+.setting:first-of-type { border-top: 0; }
+.setting small { display: block; color: var(--ink-3); font-size: var(--t-2xs); }
+.switch { width: 2.4em; height: 1.4em; border-radius: 99px; background: var(--line); border: 0; position: relative; flex-shrink: 0; transition: background .15s; }
+.switch::after { content: ''; position: absolute; top: .2em; left: .2em; width: 1em; height: 1em; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgb(0 0 0 / .25); }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(1em); }
+.palette { margin: 12% auto auto; width: min(92%, 520px); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; animation: up .15s ease; }
+.palette input { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 1em 1.1em; font-size: var(--t-sm); }
+.palette ul { list-style: none; margin: 0; padding: 6px; max-height: 320px; overflow: auto; }
+.palette li button { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: .65em .8em; border-radius: 8px; font-size: var(--t-sm); text-align: left; color: var(--ink); }
+.palette li button[data-active="true"], .palette li button:hover { background: var(--accent-soft); color: var(--accent-text); }
+.palette kbd, .kbd { margin-left: auto; font-family: var(--font-mono); font-size: var(--t-2xs); color: var(--ink-3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+.toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: .7em 1em; border-radius: 10px; font-size: var(--t-xs); display: flex; gap: 8px; align-items: center; box-shadow: var(--shadow); z-index: 20; animation: up .2s ease; white-space: nowrap; max-width: calc(100% - 32px); }
+.toast .icon { color: var(--good); }
+.fab-top { position: absolute; right: 14px; bottom: 14px; z-index: 4; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+    <symbol id="i-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+    <symbol id="i-min" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+  <header class="stage-head">
+    <div>
+      <h1>PageKit UI prototype</h1>
+      <p>Click through the extension as it would look in Chrome. Switch the panel size, theme and state above the frame. The page data is an example based on joedev.vakaks.com.</p>
+    </div>
+    <div class="controls">
+      <div class="control"><span>Size</span>
+        <div class="seg" id="ctl-size">
+          <button data-size="side" aria-pressed="true">Side panel</button>
+          <button data-size="wide" aria-pressed="false">Wide panel</button>
+          <button data-size="full" aria-pressed="false">Full view</button>
+        </div>
+      </div>
+      <div class="control"><span>Theme</span>
+        <div class="seg" id="ctl-theme">
+          <button data-theme="light" aria-pressed="false">Light</button>
+          <button data-theme="dark" aria-pressed="false">Dark</button>
+          <button data-theme="system" aria-pressed="true">System</button>
+        </div>
+      </div>
+      <div class="control"><span>State</span>
+        <div class="seg" id="ctl-run">
+          <button data-run="first" aria-pressed="false">First run</button>
+          <button data-run="ready" aria-pressed="true">Analyzed</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="screens" id="screens" aria-label="Jump to a screen"></nav>
+
+  <div class="viewport">
+    <div class="chrome">
+      <div class="chrome-bar">
+        <span class="dot"><svg class="icon" style="opacity:1;color:#fff"><use href="#i-doc"/></svg></span>
+        PageKit
+        <span class="sp"></span>
+        <svg><use href="#i-pin"/></svg>
+        <svg><use href="#i-x"/></svg>
+      </div>
+      <div class="pk" id="pk" data-size="side">
+        <div class="pk-shell">
+          <aside class="pk-side" id="side"></aside>
+          <div class="pk-main">
+            <header class="pk-head" id="head"></header>
+            <div class="pk-scroll" id="scroll"><div class="pk-body" id="body"></div></div>
+          </div>
+        </div>
+        <div id="overlay"></div>
+      </div>
+    </div>
+
+    <aside class="notes">
+      <h2>What's new in this direction</h2>
+      <ul>
+        <li><b>Health score first.</b> Home opens with one number and the next step, then the details.</li>
+        <li><b>The page you're on</b> stays pinned in the header, with a live dot and one Refresh button.</li>
+        <li><b>Underline tabs</b> in the panel; a <b>sidebar</b> in the full view, with counts of things to fix.</li>
+        <li><b>SEO in five parts:</b> Overview, Meta, Social, Structure, Export. Chips stay on screen while you scroll.</li>
+        <li><b>Plain-language checks:</b> each one says what's wrong and how to fix it; passed checks fold away.</li>
+        <li><b>Search everything</b> with <span class="kbd">⌘K</span>: every screen and action by name.</li>
+        <li><b>Settings sheet</b> for theme and defaults, so the header stays calm.</li>
+        <li><b>History you control:</b> remove one page or clear everything (with a confirm step), see storage used, or turn history off.</li>
+        <li><b>Full view opens in a tab</b> and reuses it; the side panel tells you when that tab is active instead of showing an error.</li>
+        <li><b>Competitor research</b> appears as a "coming soon" door on Home.</li>
+      </ul>
+      <h2>Try</h2>
+      <ul>
+        <li>Full view, then Markdown → Split.</li>
+        <li>SEO → Social to see the share cards.</li>
+        <li>First run, then Analyze this page.</li>
+        <li>History → remove a page, then Clear all.</li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------------- Example data (based on joedev.vakaks.com, simplified) ----------------
+  const page = {
+    url: 'https://joedev.vakaks.com/',
+    domain: 'joedev.vakaks.com',
+    title: 'Software Engineer | AI-Driven Architect - Watzson Joseph',
+    description: 'Turns complex business requirements into enterprise-grade platforms: multi-tenant launches, large-scale transformations led, months of roadmap shipped in weeks.',
+    canonical: 'https://joedev.vakaks.com/',
+    robots: 'index, follow',
+    lang: 'en',
+    keywords: 'Watzson Joseph, Joe Watson, Senior Software Engineer, AI-Driven Architect, Full-Stack Developer, Next.js, React, TypeScript, NestJS, Supabase, Multi-tenant SaaS',
+    stats: { words: 4626, h1: 1, images: 21, noAlt: 0, internal: 12, external: 8 },
+    og: { title: 'Fullstack Engineer | AI-Driven Architect', description: 'Engineering high-performance systems at the speed of AI', site: 'joedev.vakaks.com', type: 'website' },
+    headings: [
+      [1, 'Watzson Joseph'], [2, 'Who am I?'], [3, 'Driven by Code, Defined by Tech'], [2, 'What I do'], [3, 'Full-stack platforms'], [3, 'AI-driven development'], [2, 'Selected projects'], [2, 'Experience'], [2, 'Get in touch'],
+    ],
+  };
+  const issues = [
+    { level: 'warn', title: 'Description is at the 160-character limit', fix: 'Google may cut the last words on small screens. Aim for about 150 characters so the key point is never lost.' },
+    { level: 'info', title: 'No Twitter card image size set', fix: 'Add twitter:image with a 1200 × 630 image so links on X show a large preview.' },
+  ];
+  const passed = ['Title length (56 characters)', 'One <h1> on the page', 'Canonical URL set', 'Page language set (en)', 'Open Graph title, description and image', 'All 21 images have alt text', 'JSON-LD structured data present', 'Page can be indexed', 'llms.txt available for AI assistants', 'robots.txt and sitemap.xml found', 'Viewport set for mobile', 'Readable word count (4,626)'];
+  const files = [
+    { name: 'llms.txt', found: true, size: '2.1 KB' },
+    { name: 'llms-full.txt', found: false },
+    { name: 'robots.txt', found: true, size: '68 B' },
+    { name: 'sitemap.xml', found: true, size: '1.4 KB' },
+  ];
+  const fileBodies = {
+    'llms.txt': '# Watzson Joseph\n\n> Software Engineer and AI-Driven Architect. Full-stack platforms with Next.js, React, NestJS and Supabase.\n\n## Pages\n\n- [Home](https://joedev.vakaks.com/): who I am and what I build\n- [Projects](https://joedev.vakaks.com/#projects): selected work\n- [Contact](https://joedev.vakaks.com/#contact): how to reach me\n',
+    'robots.txt': 'User-agent: *\nAllow: /\n\nSitemap: https://joedev.vakaks.com/sitemap.xml\n',
+    'sitemap.xml': '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://joedev.vakaks.com/</loc></url>\n</urlset>\n',
+  };
+  const markdown = `---
+title: "${page.title}"
+description: "${page.description}"
+source: "${page.url}"
+lang: "en"
+---
+
+# Watzson Joseph
+
+A passionate and experienced **Software Engineer & AI Driven Architect** with a strong foundation in both front-end and back-end technologies. I build scalable, high-performance applications and intelligent systems that solve real-world problems.
+
+Interested in: React · Next.js · TypeScript · JavaScript · Nest.js · Spring Boot
+
+## Who am I?
+
+### Driven by Code, Defined by Tech
+
+I'm Watzson Joseph, known online as Joe Watson. A Software Engineer with over 6 years of experience, dedicated to crafting efficient software solutions that meet organizational needs.
+
+## What I do
+
+- Full-stack platforms with Next.js and NestJS
+- Multi-tenant SaaS on Supabase and Postgres
+- AI-assisted development and LLM integration
+
+## Get in touch
+
+[Contact me](https://joedev.vakaks.com/#contact)
+`;
+
+  const HISTORY = [
+    { id: 1, domain: 'joedev.vakaks.com', path: '/', title: page.title, score: 92, when: 'Just now', kb: 184, current: true },
+    { id: 2, domain: 'developer.chrome.com', path: '/docs/extensions/develop', title: 'Develop extensions | Chrome for Developers', score: 88, when: '12 min ago', kb: 236 },
+    { id: 3, domain: 'tailwindcss.com', path: '/docs/dark-mode', title: 'Dark mode - Core concepts - Tailwind CSS', score: 95, when: '1 hour ago', kb: 142 },
+    { id: 4, domain: 'vercel.com', path: '/docs', title: 'Vercel Documentation', score: 81, when: 'Yesterday', kb: 311 },
+    { id: 5, domain: 'ui.shadcn.com', path: '/docs/theming', title: 'Theming - shadcn/ui', score: 90, when: '2 days ago', kb: 128 },
+  ];
+
+  // ---------------- State ----------------
+  const SCREENS = [
+    { id: 'home', label: 'Home', icon: 'i-home' },
+    { id: 'seo', label: 'SEO', icon: 'i-search', count: issues.length },
+    { id: 'markdown', label: 'Markdown', icon: 'i-file' },
+    { id: 'convert', label: 'MD → HTML', icon: 'i-code' },
+    { id: 'files', label: 'AI files', icon: 'i-bot' },
+    { id: 'history', label: 'History', icon: 'i-clock' },
+  ];
+  const state = {
+    screen: 'home', size: 'side', theme: 'system', run: 'ready', loading: false,
+    seo: 'overview', fmt: 'json', serp: 'desktop', mdView: 'raw', cvView: 'preview', file: 'llms.txt',
+    overlay: null, palette: '', paletteIndex: 0,
+    opts: { mainOnly: true, auto: true, front: true, keep: true },
+    history: HISTORY.map((h) => ({ ...h })), confirm: null,
+    editor: '# Release notes\n\nPageKit **0.2** adds:\n\n- A health score on Home\n- Share-card previews\n- `⌘K` to find any action\n\n> Tip: paste any Markdown here and copy the HTML.\n',
+  };
+
+  const $ = (s) => document.querySelector(s);
+  const pk = $('#pk');
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const icon = (id, cls = 'icon') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+  const fmtN = (n) => n.toLocaleString('en-US');
+
+  // ---------------- Theme ----------------
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  function applyTheme() {
+    const dark = state.theme === 'dark' || (state.theme === 'system' && media.matches);
+    pk.classList.toggle('dark', dark);
+    document.querySelectorAll('#ctl-theme button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.theme === state.theme));
+  }
+  media.addEventListener('change', applyTheme);
+
+  // ---------------- Exports ----------------
+  function seoData() {
+    return {
+      title: page.title, description: page.description, keywords: page.keywords, robots: page.robots, canonical: page.canonical, lang: page.lang,
+      openGraph: { 'og:title': page.og.title, 'og:description': page.og.description, 'og:type': page.og.type, 'og:image': 'https://joedev.vakaks.com/og.png' },
+      twitter: { 'twitter:card': 'summary_large_image' },
+      jsonLd: [{ '@context': 'https://schema.org', '@type': 'Person', name: 'Watzson Joseph', jobTitle: 'Software Engineer' }],
+    };
+  }
+  function exportText(fmt) {
+    const d = seoData();
+    if (fmt === 'json') return JSON.stringify(d, null, 2);
+    if (fmt === 'ts') return '// SEO extracted from ' + page.url + '\nexport const seo = ' + JSON.stringify(d, null, 2).replace(/"([A-Za-z_$][\w$]*)":/g, '$1:') + ' as const;\n\nexport type Seo = typeof seo;';
+    if (fmt === 'html') return [
+      `<title>${page.title}</title>`, `<meta name="description" content="${page.description}" />`, `<meta name="robots" content="${page.robots}" />`,
+      `<link rel="canonical" href="${page.canonical}" />`, `<meta property="og:title" content="${page.og.title}" />`, `<meta property="og:type" content="website" />`,
+      `<meta name="twitter:card" content="summary_large_image" />`,
+    ].join('\n');
+    return `# SEO report: ${page.title}\n\nSource: <${page.url}>\n\n| Field | Value |\n| --- | --- |\n| Title (56 chars) | ${page.title} |\n| Description (160 chars) | ${page.description} |\n| Canonical | ${page.canonical} |\n| Robots | ${page.robots} |\n\n## Checks\n\n- **Improve**: Description is at the 160-character limit\n- **Tip**: No Twitter card image size set`;
+  }
+  function highlight(text, fmt) {
+    let h = esc(text);
+    if (fmt === 'json' || fmt === 'ts') {
+      h = h.replace(/(&quot;[^&]*?&quot;|'[^']*')(\s*:)?/g, (m, s, colon) => colon ? `<span class="k">${s}</span>${colon}` : `<span class="s">${s}</span>`)
+           .replace(/^(\s+)([A-Za-z_$][\w$]*)(:)/gm, '$1<span class="k">$2</span>$3')
+           .replace(/\b(export|const|as|type|typeof)\b/g, '<span class="t">$1</span>');
+    } else if (fmt === 'html') {
+      h = h.replace(/(&lt;\/?[a-z]+)/g, '<span class="t">$1</span>').replace(/(&quot;.*?&quot;)/g, '<span class="s">$1</span>');
+    } else {
+      h = h.replace(/^(#+ .*)$/gm, '<span class="k">$1</span>').replace(/(\*\*.*?\*\*)/g, '<span class="n">$1</span>');
+    }
+    return h;
+  }
+
+  // ---------------- Pieces ----------------
+  const score = 92;
+  function ring(value) {
+    const r = 42, c = 2 * Math.PI * r, off = c * (1 - value / 100);
+    const color = value >= 85 ? 'var(--good)' : value >= 60 ? 'var(--warn)' : 'var(--bad)';
+    return `<div class="ring" role="img" aria-label="SEO health ${value} out of 100">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="9"/>
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg>
+      <div class="n"><b>${value}</b><span>of 100</span></div></div>`;
+  }
+  const LEVEL = { bad: ['bad', 'Fix'], warn: ['warn', 'Improve'], info: ['neutral', 'Tip'] };
+  const btn = (action, label, ic, cls = '') => `<button class="btn ${cls}" data-action="${action}">${ic ? icon(ic) : ''}${label}</button>`;
+
+  // ---------------- Header + sidebar ----------------
+  function renderHead() {
+    const ready = state.run === 'ready' && !state.loading;
+    $('#head').innerHTML = `
+      <div class="pk-row">
+        <button class="brand" data-go="home" title="Go to Home"><span class="mark">${icon('i-doc')}</span>PageKit</button>
+        <div class="tools">
+          <button class="ibtn" data-go="history" title="History: pages you analyzed" aria-label="History">${icon('i-clock')}</button>
+          <button class="ibtn" data-action="palette" title="Search actions (⌘K)" aria-label="Search actions">${icon('i-cmd')}</button>
+          <button class="ibtn" data-action="cycle-theme" title="Theme: ${state.theme}" aria-label="Change theme">${icon(pk.classList.contains('dark') ? 'i-moon' : 'i-sun')}</button>
+          <button class="ibtn" data-action="toggle-full" title="${state.size === 'full' ? 'Back to side panel' : 'Open full view'}" aria-label="Toggle full view">${icon(state.size === 'full' ? 'i-min' : 'i-max')}</button>
+          <button class="ibtn" data-action="settings" title="Settings" aria-label="Settings">${icon('i-gear')}</button>
+        </div>
+      </div>
+      ${ready ? `<div class="pagechip">
+        <span class="fav">JD</span>
+        <div class="meta"><div class="t">${esc(page.title)}</div><div class="u"><span class="live"></span>${page.domain} · analyzed just now</div></div>
+        ${btn('refresh', 'Refresh', 'i-refresh')}
+      </div>` : ''}
+      <nav class="tabs" aria-label="Features">${SCREENS.slice(0, 4).map((s) => `<button class="tab" data-go="${s.id}" ${state.screen === s.id || (s.id === 'seo' && state.screen === 'files') ? 'aria-current="page"' : ''}>${icon(s.icon)}${s.label}</button>`).join('')}</nav>`;
+
+    $('#side').innerHTML = `
+      ${ready ? `<div class="pagechip"><span class="fav">JD</span><div class="meta"><div class="t">${page.domain}</div><div class="u"><span class="live"></span>analyzed just now</div></div></div>
+      ${btn('refresh', 'Refresh analysis', 'i-refresh')}` : ''}
+      <nav class="side-nav" aria-label="Features">${SCREENS.map((s) => `<button data-go="${s.id}" ${state.screen === s.id ? 'aria-current="page"' : ''}>${icon(s.icon)}${s.label}${s.count && ready ? `<span class="count">${s.count}</span>` : ''}</button>`).join('')}</nav>
+      <div class="side-foot">Full view follows ${page.domain}. Use <span class="kbd">⌘K</span> to find any action.</div>`;
+  }
+
+  // ---------------- Screens ----------------
+  function firstRun() {
+    if (state.loading) return `<div class="skeleton" aria-label="Reading the page"><div class="sk" style="width:40%"></div><div class="card pad skeleton"><div class="sk" style="width:85%"></div><div class="sk" style="width:60%"></div><div class="sk" style="width:70%"></div></div><div class="sk" style="width:30%"></div><div class="card pad skeleton"><div class="sk"></div><div class="sk" style="width:75%"></div></div><p class="small muted">Reading ${page.domain}…</p></div>`;
+    return `<div class="onboard">
+      <span class="pill accent" style="justify-self:start">${icon('i-doc')} Welcome to PageKit</span>
+      <h2>See any page the way Google and AI assistants see it.</h2>
+      <ol class="steps">
+        <li><span><b>Analyze this page.</b> Chrome asks once for permission to read pages.</span></li>
+        <li><span><b>Check the health score</b> and the few things worth fixing.</span></li>
+        <li><span><b>Copy what you need:</b> SEO as JSON or TypeScript, or the page as Markdown.</span></li>
+      </ol>
+      <div class="row">${btn('analyze', 'Analyze this page', 'i-search', 'primary big')}</div>
+      <p class="tiny muted">PageKit reads pages only when you ask, on this computer. Nothing is sent anywhere.</p>
+    </div>`;
+  }
+
+  function home() {
+    const words = markdown.split(/\s+/).length;
+    return `
+      <section class="card pad health" aria-label="SEO health">
+        ${ring(score)}
+        <div>
+          <h2>Strong page. ${issues.length} small things to improve.</h2>
+          <div class="row" style="margin-bottom:10px"><span class="pill good">${icon('i-check')}0 to fix</span><span class="pill warn">1 to improve</span><span class="pill neutral">1 tip</span></div>
+          <button class="btn primary" data-go="seo">Review checks ${icon('i-chev')}</button>
+        </div>
+      </section>
+
+      <section class="sec">
+        <p class="label">Quick actions</p>
+        <div class="actions">
+          <button class="action" data-action="toast" data-msg="Markdown copied (${fmtN(words)} words)">${icon('i-copy')}Copy Markdown<small>${fmtN(words)} words</small></button>
+          <button class="action" data-action="toast" data-msg="SEO JSON copied">${icon('i-code')}Copy SEO JSON<small>title, meta, OG, JSON-LD</small></button>
+          <button class="action" data-action="toast" data-msg="Saved joedev-vakaks-com.md">${icon('i-down')}Download .md<small>with front-matter</small></button>
+          <button class="action" data-action="toggle-full">${icon('i-max')}Open full view<small>side-by-side layout</small></button>
+        </div>
+      </section>
+
+      <section class="sec">
+        <p class="label">Everything for this page</p>
+        <div class="card list">
+          ${[
+            ['seo', 'i-search', 'SEO report', 'Preview, checks, meta, share cards, export', `<span class="pill warn">${issues.length} to review</span>`],
+            ['markdown', 'i-file', 'Page as Markdown', 'Clean Markdown to copy, download or reuse', `<span class="pill neutral">${fmtN(words)} words</span>`],
+            ['convert', 'i-code', 'Markdown → HTML', 'Write or paste Markdown, get clean HTML', ''],
+            ['files', 'i-bot', 'AI & crawler files', 'llms.txt, robots.txt, sitemap.xml', `<span class="pill good">${icon('i-check')}llms.txt</span>`],
+          ].map(([go, ic, t, s, pill]) => `<button class="list-item" data-go="${go}"><span class="ic">${icon(ic)}</span><span class="txt"><b>${t}</b><span>${s}</span></span>${pill}${icon('i-chev', 'icon chev')}</button>`).join('')}
+        </div>
+      </section>
+
+      <section class="card pad teaser row" style="align-items:flex-start">
+        <span class="list-item" style="padding:0;border:0;width:auto"><span class="ic">${icon('i-users')}</span></span>
+        <div style="flex:1;min-width:12rem">
+          <div class="row spread"><b class="small">Compare with competitors</b><span class="pill accent">Coming soon</span></div>
+          <p class="small muted" style="margin:4px 0 0">Find who ranks for what you offer, see what their pages do better, and get article ideas to grow organic traffic.</p>
+        </div>
+      </section>`;
+  }
+
+  function seo() {
+    const chips = [['overview', 'Overview'], ['meta', 'Meta'], ['social', 'Social'], ['structure', 'Structure'], ['export', 'Export']];
+    const nav = `<nav class="subnav" aria-label="SEO sections">${chips.map(([id, l]) => `<button class="chip" data-seo="${id}" aria-pressed="${state.seo === id}">${l}</button>`).join('')}</nav>`;
+    let body = '';
+    if (state.seo === 'overview') {
+      body = `
+        <section class="sec">
+          <div class="sec-head"><p class="label">Google preview</p>
+            <div class="segs" role="group" aria-label="Device">${['desktop', 'mobile'].map((d) => `<button data-serp="${d}" aria-pressed="${state.serp === d}">${d === 'desktop' ? 'Desktop' : 'Mobile'}</button>`).join('')}</div></div>
+          <div class="card pad"><div class="serp ${state.serp}">
+            <div class="site"><span class="fav">JD</span><span><b style="color:var(--ink);font-weight:500">Watzson Joseph</b><br />${page.url}</span></div>
+            <div class="ttl">${esc(page.title)}</div>
+            <div class="dsc">${esc(state.serp === 'mobile' ? page.description.slice(0, 118) + '…' : page.description)}</div>
+          </div></div>
+          <p class="hint">${state.serp === 'mobile' ? 'On phones Google shows about 120 characters of the description.' : 'Desktop shows up to about 160 characters.'}</p>
+        </section>
+        <section class="sec">
+          <div class="sec-head"><p class="label">Checks</p><span class="tiny muted">${passed.length} passed · ${issues.length} to review</span></div>
+          <div class="card checks">
+            ${issues.map((i) => `<div class="check"><span class="pill ${LEVEL[i.level][0]}">${LEVEL[i.level][1]}</span><b>${esc(i.title)}</b><p>${esc(i.fix)}</p></div>`).join('')}
+            <details class="passed"><summary>${icon('i-check')}<span>${passed.length} checks passed</span><span style="margin-left:auto">Show</span></summary><ul>${passed.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></details>
+          </div>
+        </section>`;
+    } else if (state.seo === 'meta') {
+      const meter = (len, max) => { const pct = Math.min(100, (len / max) * 100); const c = len > max ? 'var(--bad)' : len >= max * .95 ? 'var(--warn)' : 'var(--good)'; return `<div class="meter" aria-hidden="true"><i style="width:${pct}%;background:${c}"></i></div>`; };
+      body = `
+        <section class="sec"><p class="label">Meta tags</p>
+          <dl class="card kv">
+            <div class="kv-row"><dt>Title</dt><dd>${esc(page.title)} <span class="tiny muted">${page.title.length}/60</span>${meter(page.title.length, 60)}</dd></div>
+            <div class="kv-row"><dt>Description</dt><dd>${esc(page.description)} <span class="tiny muted">${page.description.length}/160</span>${meter(page.description.length, 160)}</dd></div>
+            <div class="kv-row"><dt>Canonical</dt><dd>${page.canonical}</dd></div>
+            <div class="kv-row"><dt>Robots</dt><dd><span class="pill good">${icon('i-check')}${page.robots}</span></dd></div>
+            <div class="kv-row"><dt>Language</dt><dd>${page.lang}</dd></div>
+            <div class="kv-row"><dt>Keywords</dt><dd class="muted">${esc(page.keywords)}<br /><span class="tiny">Google ignores this tag; other engines may read it.</span></dd></div>
+          </dl>
+        </section>`;
+    } else if (state.seo === 'social') {
+      body = `
+        <section class="sec"><p class="label">Facebook, LinkedIn, Slack</p>
+          <div class="card og"><div class="og-img"><b>${page.og.title}</b><span>${page.og.description}</span></div>
+          <div class="og-meta"><span class="d">${page.domain}</span><b>${page.og.title}</b><span class="tiny muted">${page.og.description}</span></div></div>
+        </section>
+        <section class="sec"><p class="label">X (Twitter)</p>
+          <div class="card og" style="border-radius:16px"><div class="og-img" style="aspect-ratio:2/1"><b>${page.og.title}</b></div>
+          <div class="og-meta"><span class="d">From ${page.domain}</span></div></div>
+          <p class="hint">Uses og:image because twitter:image is not set.</p>
+        </section>`;
+    } else if (state.seo === 'structure') {
+      const s = page.stats;
+      body = `
+        <section class="sec"><p class="label">Page stats</p>
+          <div class="stats">${[['Words', s.words], ['H1', s.h1], ['Images', s.images], ['No alt', s.noAlt], ['Internal links', s.internal], ['External links', s.external]].map(([k, v]) => `<div class="card stat"><b>${fmtN(v)}</b><span>${k}</span></div>`).join('')}</div>
+        </section>
+        <section class="sec"><p class="label">Headings outline</p>
+          <div class="card outline">${page.headings.map(([l, t]) => `<div style="padding-left:${(l - 1) * 1.1}em"><code>H${l}</code><span>${esc(t)}</span></div>`).join('')}</div>
+        </section>`;
+    } else {
+      const text = exportText(state.fmt);
+      const ext = { json: 'seo.json', ts: 'seo.ts', html: 'head.html', md: 'seo.md' }[state.fmt];
+      body = `
+        <section class="sec"><p class="label">Export for your project</p>
+          <div class="toolbar">
+            <div class="segs" role="group" aria-label="Format">${[['json', 'JSON'], ['ts', 'TypeScript'], ['html', 'HTML tags'], ['md', 'Markdown']].map(([f, l]) => `<button data-fmt="${f}" aria-pressed="${state.fmt === f}">${l}</button>`).join('')}</div>
+            <div class="row">${btn('toast', 'Copy', 'i-copy').replace('data-action="toast"', `data-action="toast" data-msg="${ext} copied"`)}${btn('toast', 'Download', 'i-down').replace('data-action="toast"', `data-action="toast" data-msg="Saved joedev-vakaks-com.${ext}"`)}</div>
+          </div>
+          <div class="card"><pre class="code">${highlight(text, state.fmt)}</pre></div>
+          <p class="hint">Works in any stack: import the JSON or TypeScript, or paste the HTML tags into &lt;head&gt;.</p>
+        </section>`;
+    }
+    return nav + body;
+  }
+
+  function mdScreen() {
+    const full = state.size === 'full';
+    const views = full ? [['raw', 'Markdown'], ['preview', 'Preview'], ['split', 'Split']] : [['raw', 'Markdown'], ['preview', 'Preview']];
+    if (!full && state.mdView === 'split') state.mdView = 'raw';
+    const html = window.marked ? marked.parse(markdown.replace(/^---[\s\S]*?---\n/, '')) : '<p>Preview needs the Markdown library.</p>';
+    const preview = `<div class="card doc">${html}</div>`;
+    const raw = `<div class="card"><pre class="code" style="max-height:520px">${highlight(markdown, 'md')}</pre></div>`;
+    return `
+      <section class="sec">
+        <div class="toolbar">
+          <div class="segs" role="group" aria-label="View">${views.map(([v, l]) => `<button data-md="${v}" aria-pressed="${state.mdView === v}">${l}</button>`).join('')}</div>
+          <div class="row">
+            <button class="btn" data-action="toast" data-msg="Markdown copied">${icon('i-copy')}Copy</button>
+            <button class="btn" data-action="toast" data-msg="Saved joedev-vakaks-com.md">${icon('i-down')}Download</button>
+            <button class="btn" data-action="toast" data-msg="Opened in a new tab" title="Open in a new tab" aria-label="Open in a new tab">${icon('i-ext')}</button>
+          </div>
+        </div>
+        <div class="row spread">
+          <span class="tiny muted">${fmtN(markdown.split(/\s+/).length)} words · front-matter on · links made absolute</span>
+          <div class="row" style="gap:14px">
+            <label class="opt"><input type="checkbox" id="opt-main" data-opt="mainOnly" ${state.opts.mainOnly ? 'checked' : ''} />Main content only</label>
+            <label class="opt"><input type="checkbox" id="opt-front" data-opt="front" ${state.opts.front ? 'checked' : ''} />Front-matter</label>
+          </div>
+        </div>
+        ${state.mdView === 'split' ? `<div class="split two">${raw}${preview}</div>` : state.mdView === 'raw' ? raw : preview}
+        <button class="btn ghost" data-go="convert" data-action="send" style="justify-self:start">Edit this Markdown in the converter ${icon('i-chev')}</button>
+      </section>`;
+  }
+
+  function convert() {
+    const html = window.marked ? marked.parse(state.editor) : esc(state.editor);
+    const out = state.cvView === 'html' ? `<div class="card"><pre class="code" style="max-height:420px">${highlight(html.trim(), 'html')}</pre></div>` : `<div class="card doc" style="max-height:420px">${html}</div>`;
+    return `
+      <section class="sec">
+        <div class="sec-head"><label class="label" for="editor">Markdown</label><span class="hint">Live: the result updates as you type</span></div>
+        <div class="split ${state.size === 'full' ? 'two' : ''}">
+          <textarea class="editor" id="editor" spellcheck="false" aria-label="Markdown input">${esc(state.editor)}</textarea>
+          <div class="sec">
+            <div class="toolbar">
+              <div class="segs" role="group" aria-label="Output">${[['preview', 'Preview'], ['html', 'HTML']].map(([v, l]) => `<button data-cv="${v}" aria-pressed="${state.cvView === v}">${l}</button>`).join('')}</div>
+              <div class="row">
+                <button class="btn" data-action="toast" data-msg="HTML copied">${icon('i-copy')}Copy HTML</button>
+                <button class="btn" data-action="toast" data-msg="Saved document.html">${icon('i-down')}Download</button>
+              </div>
+            </div>
+            <div id="cv-out">${out}</div>
+          </div>
+        </div>
+      </section>`;
+  }
+
+  function filesScreen() {
+    const f = files.find((x) => x.name === state.file);
+    return `
+      <section class="sec">
+        <p class="label">AI & crawler files on ${page.domain}</p>
+        <div class="card" role="listbox" aria-label="Files">
+          ${files.map((x) => `<div class="file-row" ${x.name === state.file ? 'aria-selected="true"' : ''}>
+            <span class="pill ${x.found ? 'good' : 'neutral'}">${x.found ? 'Found' : 'Missing'}</span><code>/${x.name}</code>
+            ${x.found ? `<span class="tiny muted">${x.size}</span><button class="btn" data-file="${x.name}">${x.name === state.file ? 'Showing' : 'View'}</button>` : `<button class="btn" data-action="toast" data-msg="Generator coming soon">Create</button>`}
+          </div>`).join('')}
+        </div>
+        <p class="hint">llms.txt is a short guide to your site for AI assistants like ChatGPT and Claude.</p>
+      </section>
+      ${f && f.found ? `<section class="sec">
+        <div class="toolbar"><code class="small">${page.url}${f.name}</code><div class="row">${btn('toast', 'Copy', 'i-copy').replace('data-action="toast"', `data-action="toast" data-msg="${f.name} copied"`)}${btn('toast', 'Download', 'i-down').replace('data-action="toast"', `data-action="toast" data-msg="Saved ${f.name}"`)}</div></div>
+        <div class="card"><pre class="code">${highlight(fileBodies[f.name], f.name.endsWith('.xml') ? 'html' : 'md')}</pre></div>
+      </section>` : ''}`;
+  }
+
+  function historyScreen() {
+    const h = state.history;
+    const kb = h.reduce((a, x) => a + x.kb, 0);
+    if (!state.opts.keep && !h.length) return `<div class="card pad sec"><b class="small">History is off</b><p class="small muted" style="margin:0">PageKit forgets each page when you close the panel.</p><button class="btn" style="justify-self:start" data-action="settings">Turn on in Settings</button></div>`;
+    if (!h.length) return `<div class="card pad sec" style="text-align:center;justify-items:center">${icon('i-clock', 'icon')}<b class="small">No saved pages</b><p class="small muted" style="margin:0;max-width:34ch">PageKit keeps the last 20 pages you analyze, on this computer only. Analyze a page to see it here.</p></div>`;
+    return `
+      <section class="sec">
+        <div class="sec-head"><p class="label">Recently analyzed</p><button class="btn danger" data-action="confirm-clear">${icon('i-trash')}Clear all</button></div>
+        <div class="card">${h.map((x) => `<div class="hist-item ${x.current ? 'current' : ''}">
+          <span class="fav">${x.domain.slice(0, 2).toUpperCase()}</span>
+          <div class="txt"><b>${esc(x.title)}</b><span>${x.domain}${x.path} · ${x.when}${x.current ? ' · this page' : ''}</span></div>
+          <span class="pill ${x.score >= 85 ? 'good' : 'warn'}">${x.score}</span>
+          <button class="ibtn danger" data-remove="${x.id}" title="Remove from history" aria-label="Remove ${x.domain} from history">${icon('i-x')}</button>
+        </div>`).join('')}</div>
+      </section>
+      <section class="sec">
+        <p class="label">Storage on this computer</p>
+        <div class="card pad sec">
+          <div class="row spread small"><span>${h.length} of 20 pages · ${(kb / 1024).toFixed(1)} MB</span><span class="muted tiny">Nothing leaves your browser</span></div>
+          <div class="storage" aria-hidden="true"><i style="width:${Math.max(3, (h.length / 20) * 100)}%"></i></div>
+          <p class="tiny muted" style="margin:0">Each saved page keeps its SEO data and Markdown. Oldest pages are removed first. Change this in Settings.</p>
+        </div>
+      </section>`;
+  }
+
+  // ---------------- Overlays ----------------
+  const ACTIONS = [
+    { label: 'Go to Home', icon: 'i-home', run: () => go('home') },
+    { label: 'Open SEO report', icon: 'i-search', run: () => go('seo', 'overview') },
+    { label: 'Show Google preview', icon: 'i-search', run: () => go('seo', 'overview') },
+    { label: 'Show share cards (Open Graph)', icon: 'i-search', run: () => go('seo', 'social') },
+    { label: 'Show headings outline', icon: 'i-search', run: () => go('seo', 'structure') },
+    { label: 'Export SEO as JSON', icon: 'i-code', run: () => { state.fmt = 'json'; go('seo', 'export'); } },
+    { label: 'Export SEO as TypeScript', icon: 'i-code', run: () => { state.fmt = 'ts'; go('seo', 'export'); } },
+    { label: 'Copy page as Markdown', icon: 'i-copy', run: () => toast('Markdown copied') },
+    { label: 'Open Markdown', icon: 'i-file', run: () => go('markdown') },
+    { label: 'Convert Markdown to HTML', icon: 'i-code', run: () => go('convert') },
+    { label: 'View llms.txt', icon: 'i-bot', run: () => go('files') },
+    { label: 'Switch to dark theme', icon: 'i-moon', run: () => setTheme('dark') },
+    { label: 'Switch to light theme', icon: 'i-sun', run: () => setTheme('light') },
+    { label: 'Use system theme', icon: 'i-sun', run: () => setTheme('system') },
+    { label: 'Open full view', icon: 'i-max', run: () => setSize('full') },
+    { label: 'Settings', icon: 'i-gear', run: () => openOverlay('settings') },
+    { label: 'History: pages you analyzed', icon: 'i-clock', run: () => go('history') },
+    { label: 'Clear all saved pages', icon: 'i-trash', run: () => { state.overlay = 'confirm'; renderOverlay(); } },
+  ];
+  function paletteItems() {
+    const q = state.palette.trim().toLowerCase();
+    return ACTIONS.filter((a) => !q || a.label.toLowerCase().includes(q));
+  }
+  function renderOverlay() {
+    const o = $('#overlay');
+    if (!state.overlay) { o.innerHTML = ''; return; }
+    if (state.overlay === 'confirm') {
+      o.innerHTML = `<div class="scrim" data-close><div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" aria-describedby="cf-d">
+        <h3 id="cf-t">Clear all saved pages?</h3>
+        <p id="cf-d">This removes ${state.history.length} saved page${state.history.length === 1 ? '' : 's'} and their Markdown from this computer. You can't undo this. Your settings stay.</p>
+        <div class="row" style="justify-content:flex-end"><button class="btn" data-close>Cancel</button><button class="btn danger-solid" data-action="clear-all">${icon('i-trash')}Clear all</button></div>
+      </div></div>`;
+      o.querySelector('.danger-solid').focus();
+      return;
+    }
+    if (state.overlay === 'settings') {
+      const sw = (key, label, sub) => `<div class="setting"><span>${label}<small>${sub}</small></span><button class="switch" role="switch" aria-checked="${state.opts[key]}" data-opt-switch="${key}" aria-label="${label}"></button></div>`;
+      o.innerHTML = `<div class="scrim" data-close><div class="sheet" role="dialog" aria-modal="true" aria-label="Settings">
+        <div class="row spread"><b>Settings</b><button class="ibtn" data-close aria-label="Close settings">${icon('i-x')}</button></div>
+        <div class="sec"><p class="label">Theme</p>
+          <div class="segs" role="group" aria-label="Theme" style="justify-self:start">${['light', 'dark', 'system'].map((t) => `<button data-set-theme="${t}" aria-pressed="${state.theme === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
+        <div class="sec"><p class="label">Defaults</p><div>
+          ${sw('auto', 'Auto-analyze', 'Read the page again when you switch tabs or it reloads')}
+          ${sw('mainOnly', 'Main content only', 'Skip menus, header, footer and sidebars in Markdown')}
+          ${sw('front', 'Front-matter in Markdown', 'Title, description and source at the top')}
+        </div></div>
+        <div class="sec"><p class="label">History & data</p><div>
+          ${sw('keep', 'Keep history', 'Save the last 20 pages you analyze, on this computer only')}
+          <div class="setting"><span>Clear all data<small>Removes saved pages and Markdown. Settings stay.</small></span><button class="btn danger" data-action="confirm-clear">${icon('i-trash')}Clear</button></div>
+        </div></div>
+        <div class="sec"><p class="label">Site access</p>
+          <div class="row spread small"><span class="muted">Allowed to read pages you analyze</span><button class="btn" data-action="toast" data-msg="Opens Chrome's extension settings">Manage</button></div></div>
+      </div></div>`;
+    } else {
+      const items = paletteItems();
+      state.paletteIndex = Math.min(state.paletteIndex, Math.max(0, items.length - 1));
+      o.innerHTML = `<div class="scrim" data-close><div class="palette" role="dialog" aria-modal="true" aria-label="Search actions">
+        <input id="palette-q" placeholder="Search screens and actions…" value="${esc(state.palette)}" aria-label="Search" autocomplete="off" />
+        <ul>${items.length ? items.map((a, i) => `<li><button data-run="${ACTIONS.indexOf(a)}" data-active="${i === state.paletteIndex}">${icon(a.icon)}${a.label}</button></li>`).join('') : '<li class="small muted" style="padding:12px">No match. Try “markdown” or “dark”.</li>'}</ul>
+      </div></div>`;
+      const q = $('#palette-q'); q.focus(); q.setSelectionRange(q.value.length, q.value.length);
+    }
+  }
+  function openOverlay(name) { state.overlay = name; state.palette = ''; state.paletteIndex = 0; renderOverlay(); }
+  function closeOverlay() { state.overlay = null; renderOverlay(); }
+  let toastTimer;
+  function toast(msg) {
+    clearTimeout(toastTimer);
+    document.querySelector('.toast')?.remove();
+    const t = document.createElement('div');
+    t.className = 'toast'; t.setAttribute('role', 'status');
+    t.innerHTML = `${icon('i-check')}${esc(msg)}`;
+    pk.appendChild(t);
+    toastTimer = setTimeout(() => t.remove(), 1800);
+  }
+
+  // ---------------- Render + routing ----------------
+  function render() {
+    applyTheme();
+    pk.dataset.size = state.size;
+    document.querySelectorAll('#ctl-size button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.size === state.size));
+    document.querySelectorAll('#ctl-run button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.run === state.run));
+    $('#screens').innerHTML = SCREENS.map((s) => `<button data-go="${s.id}" aria-current="${state.screen === s.id}">${s.label}</button>`).join('') +
+      `<button data-action="settings">Settings</button><button data-action="palette">Search ⌘K</button>`;
+    renderHead();
+    const ready = state.run === 'ready' && !state.loading;
+    const screen = !ready && state.screen !== 'convert' && state.screen !== 'history' ? firstRun()
+      : ({ home, seo, markdown: mdScreen, convert, files: filesScreen, history: historyScreen })[state.screen]();
+    $('#body').innerHTML = screen;
+    renderOverlay();
+  }
+  function go(screen, seoSection) {
+    state.screen = screen;
+    if (seoSection) state.seo = seoSection;
+    state.overlay = null;
+    if (location.hash !== '#' + screen) history.replaceState(null, '', '#' + screen);
+    render();
+    $('#scroll').scrollTop = 0;
+  }
+  function setTheme(t) { state.theme = t; render(); }
+  function setSize(s) { state.size = s; render(); }
+
+  // ---------------- Events ----------------
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button, [data-close], input');
+    if (!t) return;
+    if (t.matches('[data-close]') && (e.target === t || t.tagName === 'BUTTON')) return closeOverlay();
+    if (t.dataset.size && t.closest('#ctl-size')) return setSize(t.dataset.size);
+    if (t.dataset.theme && t.closest('#ctl-theme')) return setTheme(t.dataset.theme);
+    if (t.dataset.run) { state.run = t.dataset.run; state.loading = false; return render(); }
+    if (t.dataset.setTheme) { state.theme = t.dataset.setTheme; render(); return; }
+    if (t.dataset.optSwitch) { const k = t.dataset.optSwitch; state.opts[k] = !state.opts[k]; if (k === 'keep' && !state.opts.keep) toast('History off: new pages won\'t be saved'); return renderOverlay(); }
+    if (t.dataset.run !== undefined && t.closest('.palette')) return;
+    if (t.closest('.palette') && t.dataset.run === undefined && t.hasAttribute('data-run')) return;
+    if (t.closest('.palette li button')) { const a = ACTIONS[+t.dataset.run]; closeOverlay(); a.run(); return; }
+    if (t.dataset.seo) { state.seo = t.dataset.seo; return render(); }
+    if (t.dataset.serp) { state.serp = t.dataset.serp; return render(); }
+    if (t.dataset.fmt) { state.fmt = t.dataset.fmt; return render(); }
+    if (t.dataset.md) { state.mdView = t.dataset.md; return render(); }
+    if (t.dataset.cv) { state.cvView = t.dataset.cv; return render(); }
+    if (t.dataset.file) { state.file = t.dataset.file; return render(); }
+    if (t.dataset.remove) {
+      const item = state.history.find((x) => x.id === +t.dataset.remove);
+      state.history = state.history.filter((x) => x.id !== +t.dataset.remove);
+      render(); toast(`Removed ${item.domain}`); return;
+    }
+    if (t.dataset.action === 'confirm-clear') { state.overlay = 'confirm'; return renderOverlay(); }
+    if (t.dataset.action === 'clear-all') { const n = state.history.length; state.history = []; state.overlay = null; render(); toast(`Cleared ${n} saved page${n === 1 ? '' : 's'}`); return; }
+    const action = t.dataset.action;
+    if (action === 'send') { state.editor = markdown.replace(/^---[\s\S]*?---\n\n/, ''); }
+    if (t.dataset.go) return go(t.dataset.go);
+    if (action === 'toast') return toast(t.dataset.msg);
+    if (action === 'palette') return openOverlay('palette');
+    if (action === 'settings') return openOverlay('settings');
+    if (action === 'cycle-theme') return setTheme({ system: 'light', light: 'dark', dark: 'system' }[state.theme]);
+    if (action === 'toggle-full') return setSize(state.size === 'full' ? 'side' : 'full');
+    if (action === 'refresh') { toast('Page analyzed again'); return; }
+    if (action === 'analyze') {
+      state.loading = true; render();
+      setTimeout(() => { state.loading = false; state.run = 'ready'; state.screen = 'home'; render(); toast('Analyzed joedev.vakaks.com'); }, 1200);
+    }
+  });
+  // palette clicks are handled here (the generic data-run above is for the State switch)
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.palette li button');
+    if (b) { const a = ACTIONS[+b.dataset.run]; closeOverlay(); a.run(); }
+  }, true);
+
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'editor') {
+      state.editor = e.target.value;
+      const html = window.marked ? marked.parse(state.editor) : esc(state.editor);
+      $('#cv-out').innerHTML = state.cvView === 'html' ? `<div class="card"><pre class="code" style="max-height:420px">${highlight(html.trim(), 'html')}</pre></div>` : `<div class="card doc" style="max-height:420px">${html}</div>`;
+    }
+    if (e.target.id === 'palette-q') { state.palette = e.target.value; state.paletteIndex = 0; renderOverlay(); }
+    if (e.target.dataset.opt) { state.opts[e.target.dataset.opt] = e.target.checked; toast(e.target.checked ? 'Turned on' : 'Turned off'); }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openOverlay('palette'); return; }
+    if (e.key === 'Escape' && state.overlay) { closeOverlay(); return; }
+    if (state.overlay === 'palette') {
+      const items = paletteItems();
+      if (e.key === 'ArrowDown') { e.preventDefault(); state.paletteIndex = (state.paletteIndex + 1) % items.length; renderOverlay(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); state.paletteIndex = (state.paletteIndex - 1 + items.length) % items.length; renderOverlay(); }
+      if (e.key === 'Enter' && items[state.paletteIndex]) { e.preventDefault(); const a = items[state.paletteIndex]; closeOverlay(); a.run(); }
+    }
+  });
+
+  const fromHash = () => { const h = location.hash.slice(1); if (SCREENS.some((s) => s.id === h)) { state.screen = h; render(); } };
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+  render();
+})();
+</script>
+</body>
+</html>
