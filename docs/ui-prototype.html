@@ -6,539 +6,306 @@
 <title>VaksKit UI Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <style>
-/* Brand idea: a bento box of what machines read on a page. Each reader owns a hue
-   (Google sky, Social coral, AI lilac, Markdown lagoon, Export sun). Light mode: soft
-   tints with deep text. Dark mode: deep tints with bright text. The score tile is
-   inverted ink, the anchor of every grid. The tiles are the navigation. */
+/* Follows the user's references (Jets, Captures): white airy surface, large soft corners,
+   one vivid brand colour only on the main action (with a coloured glow), a full-width pill
+   switch, soft grey rows with chevrons, outlined tinted tags, navy text, Plus Jakarta Sans. */
 :root {
-  --display: 'Bricolage Grotesque', 'Figtree', ui-sans-serif, system-ui, sans-serif;
-  --ui: 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --stage: #e4e6ea; --stage-ink: #101114; --stage-ink-2: #5b606b; --stage-tile: #f4f5f7;
+  --font: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --stage: #e8e9f0; --stage-ink: #16154a; --stage-ink-2: #6e7091;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --stage: #050506; --stage-ink: #f1f2f4; --stage-ink-2: #9097a3; --stage-tile: #111215; color-scheme: dark; }
-}
-:root[data-theme="dark"] { --stage: #050506; --stage-ink: #f1f2f4; --stage-ink-2: #9097a3; --stage-tile: #111215; color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stage: #08081a; --stage-ink: #eeeefb; --stage-ink-2: #9b9dbb; color-scheme: dark; } }
+:root[data-theme="dark"] { --stage: #08081a; --stage-ink: #eeeefb; --stage-ink-2: #9b9dbb; color-scheme: dark; }
 
-/* ---------- brand tokens: light ---------- */
-.theme-light, .app {
-  --bg: #eceef1; --tile: #ffffff; --ink: #101114; --ink-2: #545862; --ink-3: #8a8f99; --line: #dfe2e7;
-  --sky-bg: #dcebff; --sky-fg: #0b3a75; --sky: #2f7bea;
-  --coral-bg: #ffe1da; --coral-fg: #7a1f0e; --coral: #f2552c;
-  --lilac-bg: #ece3ff; --lilac-fg: #3e1f80; --lilac: #7c4dff;
-  --lagoon-bg: #d3f3ec; --lagoon-fg: #0b4d42; --lagoon: #10a88f;
-  --sun-bg: #fff0c2; --sun-fg: #5c4100; --sun: #e6a700;
-  --hero-bg: #101114; --hero-fg: #f5f6f8; --hero-2: #a2a7b1;
-  --good: #11875f; --bad: #d0402a;
+/* VaksKit tokens */
+.vk {
+  --surface: #ffffff; --row: #f5f6fa; --border: #ecedf3;
+  --ink: #16154a; --ink-2: #6e7091; --ink-3: #a3a5bd;
+  --primary: #5b5cf0; --primary-2: #7a7bf7; --on-primary: #ffffff; --glow: rgb(91 92 240 / .38); --tint: #eeeefe;
+  --green: #12a150; --green-tint: #e8f7ee; --orange: #e0791f; --orange-tint: #fff3e6; --grey-tint: #f1f2f6;
+  --shadow: 0 1px 2px rgb(22 21 74 / .04), 0 18px 40px -18px rgb(22 21 74 / .25);
+  color-scheme: light;
 }
-/* ---------- brand tokens: dark ---------- */
-.theme-dark, .app.dark {
-  --bg: #08090b; --tile: #15171b; --ink: #f1f2f4; --ink-2: #a5aab4; --ink-3: #6f7480; --line: #24272d;
-  --sky-bg: #0d2140; --sky-fg: #cfe3ff; --sky: #6aa8ff;
-  --coral-bg: #3a1710; --coral-fg: #ffd6cc; --coral: #ff7a57;
-  --lilac-bg: #23164a; --lilac-fg: #e3d8ff; --lilac: #a887ff;
-  --lagoon-bg: #0a2e28; --lagoon-fg: #c4f2e7; --lagoon: #2dd4b4;
-  --sun-bg: #332708; --sun-fg: #ffebb0; --sun: #ffc83d;
-  --hero-bg: #f1f2f4; --hero-fg: #0b0c0e; --hero-2: #5b606b;
-  --good: #3ddc97; --bad: #ff7a5c;
+.vk.dark {
+  --surface: #14142a; --row: #1c1c35; --border: #282845;
+  --ink: #eeeefb; --ink-2: #9b9dbb; --ink-3: #6b6d8c;
+  --primary: #6f70ff; --primary-2: #8b8cff; --on-primary: #ffffff; --glow: rgb(111 112 255 / .35); --tint: #23235a;
+  --green: #3ddc84; --green-tint: rgb(61 220 132 / .12); --orange: #ffa94d; --orange-tint: rgb(255 169 77 / .12); --grey-tint: #22223c;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 24px 50px -20px rgb(0 0 0 / .7);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--stage); color: var(--stage-ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
-button, input, textarea { font: inherit; color: inherit; }
+body { background: var(--stage); color: var(--stage-ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+button, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; text-align: inherit; }
 :focus { outline: none; }
-:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--primary, #5b5cf0); outline-offset: 2px; border-radius: 10px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-/* ---------- stage ---------- */
-.stage { max-width: 1280px; margin: 0 auto; padding: 28px 16px 64px; display: grid; gap: 24px; }
-.stage-top { display: flex; flex-wrap: wrap; gap: 14px 32px; align-items: end; justify-content: space-between; }
-.stage-top h1 { margin: 0; font: 700 1.5rem/1.1 var(--display); letter-spacing: -.02em; }
-.stage-top p { margin: 6px 0 0; color: var(--stage-ink-2); font-size: .9rem; max-width: 60ch; line-height: 1.5; }
-.switch { display: inline-flex; background: var(--stage-tile); border-radius: 999px; padding: 4px; gap: 2px; font-size: .8rem; font-weight: 600; }
-.switch button { padding: 6px 12px; border-radius: 999px; color: var(--stage-ink-2); }
-.switch button[aria-pressed="true"] { background: var(--stage-ink); color: var(--stage); }
-.switches { display: flex; flex-wrap: wrap; gap: 8px; }
-.floor { display: flex; justify-content: center; align-items: flex-start; gap: 32px; flex-wrap: wrap; }
+.stage { max-width: 1320px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 26px; }
+.stage header h1 { margin: 0; font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; }
+.stage header p { margin: 6px 0 0; color: var(--stage-ink-2); font-size: .92rem; max-width: 66ch; line-height: 1.55; }
+.frames { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; align-items: flex-start; }
+.frame-wrap { display: grid; gap: 10px; justify-items: center; }
+.frame-wrap > span { font-size: .78rem; font-weight: 600; color: var(--stage-ink-2); }
 
-/* Chrome side panel frame */
-.win { background: #1d1e21; border-radius: 14px; padding: 0 5px 5px; box-shadow: 0 30px 80px -30px rgb(0 0 0 / .55); }
-.win-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 8px 7px; font: 600 .74rem var(--ui); color: #c9cbd0; }
-.win-bar i { font-style: normal; opacity: .5; letter-spacing: .25em; }
-
-/* ---------- logo: a 2x2 bento ---------- */
-.logo { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 1.5em; height: 1.5em; flex-shrink: 0; }
-.logo i { border-radius: 3px; }
-.logo i:nth-child(1) { background: var(--sky); }
-.logo i:nth-child(2) { background: var(--coral); }
-.logo i:nth-child(3) { background: var(--lilac); }
-.logo i:nth-child(4) { background: var(--lagoon); }
-.wordmark { font: 800 1.08em/1 var(--display); letter-spacing: -.035em; }
-.wordmark span { opacity: .45; }
-
-/* ---------- the app ---------- */
-.app {
-  container-type: inline-size;
-  width: 384px; height: 780px;
-  background: var(--bg); color: var(--ink);
-  border-radius: 10px; overflow: hidden; position: relative;
-  display: flex; flex-direction: column;
-  font-size: clamp(.875rem, .82rem + .3cqi, 1rem);
-  transition: width .25s ease;
-  --gap: clamp(8px, 6px + .6cqi, 12px);
-  --r: clamp(16px, 12px + .8cqi, 22px);
-  --pad: clamp(14px, 10px + 1.2cqi, 22px);
+/* ---------- the panel ---------- */
+.vk {
+  width: 372px; height: 740px;
+  background: var(--surface); color: var(--ink);
+  border-radius: 24px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; overflow: hidden; position: relative;
+  font-size: 15px;
 }
-.app[data-size="full"] { width: min(1180px, calc(100vw - 40px)); height: 820px; }
-.bar { display: flex; align-items: center; gap: 10px; padding: 12px var(--gap) 10px; }
-.bar .brand { display: flex; align-items: center; gap: 9px; font-size: 1.02em; }
-.bar .host { flex: 1; min-width: 0; display: flex; justify-content: flex-end; }
-.chip { display: inline-flex; align-items: center; gap: 7px; background: var(--tile); border-radius: 999px; padding: 6px 12px 6px 8px; font-size: .82em; font-weight: 600; max-width: 100%; }
-.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px color-mix(in oklab, var(--good) 25%, transparent); flex-shrink: 0; }
-.chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.round { width: 34px; height: 34px; border-radius: 50%; background: var(--tile); display: grid; place-items: center; font-size: .95em; flex-shrink: 0; }
-.round:hover { background: var(--line); }
-.back { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .95em; padding: 7px 14px 7px 10px; border-radius: 999px; background: var(--tile); }
-.scroll { flex: 1; overflow-y: auto; padding: 0 var(--gap) 60px; }
+.head { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 14px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.12em; letter-spacing: -.01em; }
+.logo { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-2), var(--primary)); display: grid; place-items: center; box-shadow: 0 6px 14px -6px var(--glow); }
+.logo svg { width: 18px; height: 18px; }
+.head-actions { display: flex; gap: 6px; }
+.ibtn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); }
+.ibtn:hover { background: var(--row); color: var(--ink); }
+.ibtn svg { width: 19px; height: 19px; }
+.body { flex: 1; overflow-y: auto; padding: 0 20px 22px; display: grid; gap: 14px; align-content: start; }
 
-/* bento grid */
-.bento { display: grid; gap: var(--gap); grid-template-columns: 1fr 1fr;
-  grid-template-areas: "hero hero" "google google" "ai social" "md md" "words links" "export export" "convert convert"; }
-@container (min-width: 820px) {
-  .bento { grid-template-columns: repeat(6, 1fr);
-    grid-template-areas: "hero hero google google google ai" "hero hero google google google social" "md md md export export words" "md md md export export links" "convert convert convert convert convert convert"; }
-}
-.tile { background: var(--tile); border-radius: var(--r); padding: var(--pad); display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; transition: transform .18s ease; }
-button.tile:hover, .tile.link:hover { transform: translateY(-2px); }
-.tile .k { font-size: .76em; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; opacity: .7; display: flex; justify-content: space-between; gap: 8px; }
-.tile .go { font-family: var(--display); font-weight: 700; opacity: .5; text-transform: none; letter-spacing: 0; }
-.big { font: 800 clamp(2rem, 1.5rem + 2.2cqi, 3.2rem)/.9 var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.tile p { margin: 0; line-height: 1.45; }
-.t-hero { grid-area: hero; background: var(--hero-bg); color: var(--hero-fg); justify-content: space-between; min-height: 180px; }
-.t-hero .score { font: 800 clamp(4.4rem, 3rem + 6cqi, 7.5rem)/.8 var(--display); letter-spacing: -.06em; }
-.t-hero .score small { font-size: .26em; letter-spacing: 0; color: var(--hero-2); margin-left: 4px; }
-.t-hero h2 { margin: 0; font: 700 clamp(1.15rem, 1rem + .8cqi, 1.5rem)/1.15 var(--display); letter-spacing: -.02em; text-wrap: balance; }
-.t-hero .sub { color: var(--hero-2); font-size: .9em; }
-.t-google { grid-area: google; background: var(--sky-bg); color: var(--sky-fg); }
-.t-ai { grid-area: ai; background: var(--lilac-bg); color: var(--lilac-fg); }
-.t-social { grid-area: social; background: var(--coral-bg); color: var(--coral-fg); }
-.t-md { grid-area: md; background: var(--lagoon-bg); color: var(--lagoon-fg); }
-.t-export { grid-area: export; background: var(--sun-bg); color: var(--sun-fg); }
-.t-words { grid-area: words; }
-.t-links { grid-area: links; }
-.t-convert { grid-area: convert; flex-direction: row; align-items: center; justify-content: space-between; }
-.serp { display: grid; gap: 3px; background: var(--tile); border-radius: 12px; padding: 12px 14px; color: var(--ink); font-family: arial, sans-serif; }
-.serp .u { font-size: .78em; color: var(--ink-2); }
-.serp .t { font-size: 1.08em; line-height: 1.3; color: #1a0dab; }
-.app.dark .serp .t { color: #99c3ff; }
-.serp .d { font-size: .86em; line-height: 1.5; color: var(--ink-2); }
-.cut { background: color-mix(in oklab, var(--sky) 28%, transparent); color: var(--ink); border-radius: 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 2px; }
-.pills { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill { font-size: .78em; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: color-mix(in oklab, currentColor 12%, transparent); white-space: nowrap; }
-.pill.solid { background: currentColor; }
-.pill.solid span { color: var(--tile); }
-.thumb { background: #0a0a0a; color: #f2f2f2; border-radius: 10px; aspect-ratio: 1200/630; padding: 10px 12px; display: flex; align-items: flex-end; font: 700 .82em/1.15 var(--display); letter-spacing: -.01em; }
-.mdlines { font: .78em/1.6 var(--mono); background: color-mix(in oklab, var(--tile) 70%, transparent); border-radius: 12px; padding: 10px 12px; white-space: pre-wrap; overflow: hidden; max-height: 9.2em; }
-.app[data-size="full"] .mdlines { max-height: 16em; }
-.mdlines .h { font-weight: 700; } .mdlines .c { opacity: .55; }
-.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.btn { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .86em; padding: 8px 14px; border-radius: 999px; background: var(--ink); color: var(--bg); white-space: nowrap; }
-.btn:hover { opacity: .88; }
-.btn.soft { background: color-mix(in oklab, currentColor 12%, transparent); color: inherit; }
-.tile .btn.on-tile { background: currentColor; }
-.tile .btn.on-tile span { color: var(--tile); }
-.fmt { display: flex; flex-wrap: wrap; gap: 6px; }
-.fmt button { font: 600 .82em var(--mono); padding: 6px 11px; border-radius: 999px; background: color-mix(in oklab, currentColor 10%, transparent); }
-.fmt button[aria-pressed="true"] { background: currentColor; }
-.fmt button[aria-pressed="true"] span { color: var(--tile); }
-.bars { display: flex; align-items: flex-end; gap: 3px; height: 34px; }
-.bars i { flex: 1; border-radius: 3px 3px 1px 1px; background: var(--ink); opacity: .14; }
-.bars i.on { opacity: 1; background: var(--lagoon); }
-.small { font-size: .82em; }
-.muted { opacity: .7; }
+.site { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: var(--row); }
+.fav { width: 32px; height: 32px; border-radius: 10px; background: #0f3d3e; color: #c8f560; display: grid; place-items: center; font-weight: 800; font-size: .72em; flex-shrink: 0; }
+.site .txt { flex: 1; min-width: 0; }
+.site b { display: block; font-size: .9em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.site small { display: flex; align-items: center; gap: 6px; font-size: .76em; color: var(--ink-2); }
+.site small i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
-/* detail views */
-.detail { display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); }
-@container (min-width: 820px) { .detail.two { grid-template-columns: 1fr 1fr; } .detail .wide { grid-column: 1 / -1; } }
-.ruler { position: relative; height: 26px; font: 10px var(--mono); opacity: .9; }
-.ruler .track { position: absolute; left: 0; right: 0; top: 8px; height: 6px; border-radius: 6px; background: color-mix(in oklab, currentColor 14%, transparent); }
-.ruler .fill { position: absolute; left: 0; top: 8px; height: 6px; border-radius: 6px; background: currentColor; }
-.ruler .tick { position: absolute; top: 4px; height: 14px; width: 2px; border-radius: 2px; background: currentColor; opacity: .5; }
-.ruler .lab { position: absolute; top: 18px; transform: translateX(-50%); white-space: nowrap; opacity: .75; }
-.val { font-size: 1.02em; line-height: 1.5; overflow-wrap: anywhere; }
-dl.kv { margin: 0; display: grid; }
-dl.kv div { display: grid; grid-template-columns: minmax(6.5em, 28%) 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid color-mix(in oklab, currentColor 12%, transparent); font-size: .92em; }
-dl.kv div:first-child { border-top: 0; padding-top: 0; }
-dl.kv dt { font: .82em var(--mono); opacity: .65; padding-top: .15em; }
-dl.kv dd { margin: 0; overflow-wrap: anywhere; }
-dl.kv small { display: block; opacity: .7; font-size: .85em; margin-top: 2px; }
-ul.bots { list-style: none; margin: 0; padding: 0; display: grid; }
-ul.bots li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid color-mix(in oklab, currentColor 12%, transparent); font-size: .95em; }
-ul.bots li:first-child { border-top: 0; padding-top: 0; }
-ul.bots b { font-weight: 700; } ul.bots small { opacity: .65; margin-left: 6px; }
-.st { font: 700 .78em var(--ui); padding: 4px 10px; border-radius: 999px; }
-.st.yes { background: color-mix(in oklab, var(--good) 18%, transparent); color: var(--good); }
-.st.no { background: color-mix(in oklab, var(--bad) 18%, transparent); color: var(--bad); }
-pre.code { margin: 0; font: .8em/1.7 var(--mono); background: var(--tile); color: var(--ink); border-radius: 14px; padding: 14px 16px; overflow: auto; max-height: 420px; white-space: pre-wrap; word-break: break-word; }
-.code .s { color: var(--lagoon); } .code .k { font-weight: 600; } .code .c { color: var(--ink-3); } .code .h { font-weight: 700; color: var(--lagoon); }
-.app.dark .code .s, .app.dark .code .h { color: var(--lagoon); }
-.lines { counter-reset: ln; }
-.lines .l { display: block; padding-left: 3.2em; position: relative; }
-.lines .l::before { counter-increment: ln; content: counter(ln); position: absolute; left: 0; width: 2.2em; text-align: right; color: var(--ink-3); }
-.reading { background: var(--tile); color: var(--ink); border-radius: 14px; padding: clamp(16px, 12px + 2cqi, 32px); line-height: 1.7; font-size: .98em; }
-.reading h1 { font: 800 1.6em/1.1 var(--display); letter-spacing: -.03em; margin: 0 0 .5em; }
-.reading h2 { font: 700 1.15em var(--display); margin: 1.4em 0 .3em; }
-.reading p { margin: 0 0 .9em; max-width: 64ch; }
-.reading a { color: inherit; }
-.reading code { font-family: var(--mono); font-size: .9em; }
-.share { border-radius: 16px; overflow: hidden; background: var(--tile); color: var(--ink); max-width: 560px; }
-.share .img { aspect-ratio: 1200/630; background: #0a0a0a; color: #f2f2f2; display: grid; align-content: center; padding: 0 9%; gap: 8px; }
-.share .img b { font: 800 clamp(1.1rem, .8rem + 1.6cqi, 1.9rem)/1.1 var(--display); letter-spacing: -.03em; }
-.share .img span { font-size: clamp(.66rem, .55rem + .5cqi, .9rem); opacity: .65; line-height: 1.4; }
-.share .meta { padding: 10px 14px; display: grid; gap: 1px; }
-.share .meta small { font: 10px var(--mono); opacity: .6; text-transform: uppercase; }
-textarea.write { width: 100%; min-height: 240px; border: 0; border-radius: 14px; background: var(--tile); padding: 14px 16px; font: .82em/1.7 var(--mono); resize: vertical; }
-textarea.write:focus { outline: 2px solid var(--ink); }
-.split { display: grid; gap: var(--gap); }
-@container (min-width: 820px) { .split { grid-template-columns: 1fr 1fr; } }
-.toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); font-weight: 700; font-size: .85em; padding: 10px 16px; border-radius: 999px; white-space: nowrap; z-index: 5; animation: pop .2s ease; }
+/* Captures-style action tiles */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile { border-radius: 20px; padding: 16px; min-height: 152px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; text-align: left; transition: transform .15s ease, box-shadow .15s ease; }
+.tile:hover { transform: translateY(-2px); }
+.tile .ic { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; }
+.tile .ic svg { width: 20px; height: 20px; }
+.tile b { display: block; font-size: 1.02em; font-weight: 700; letter-spacing: -.01em; }
+.tile small { display: block; font-size: .78em; margin-top: 2px; }
+.tile.primary { background: linear-gradient(150deg, var(--primary-2) 0%, var(--primary) 60%); color: var(--on-primary); box-shadow: 0 16px 30px -12px var(--glow); }
+.tile.primary .ic { background: rgb(255 255 255 / .2); }
+.tile.primary small { color: rgb(255 255 255 / .78); }
+.tile.soft { background: var(--row); }
+.tile.soft .ic { background: var(--surface); color: var(--ink); box-shadow: 0 2px 6px rgb(22 21 74 / .06); }
+.tile.soft small { color: var(--ink-3); }
+.score { font-size: 2.15em; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
+.score span { font-size: .42em; font-weight: 600; opacity: .75; letter-spacing: 0; margin-left: 2px; }
+
+.label { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.label h2 { margin: 0; font-size: 1.02em; font-weight: 700; letter-spacing: -.01em; }
+.label button { font-size: .8em; font-weight: 600; color: var(--primary); }
+
+/* Captures-style rows */
+.rows { display: grid; gap: 10px; }
+.row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--row); font-weight: 600; font-size: .92em; width: 100%; }
+.row:hover { background: var(--tint); }
+.row svg { width: 19px; height: 19px; flex-shrink: 0; color: var(--ink-2); }
+.row .grow { flex: 1; min-width: 0; }
+.row .chev { width: 16px; height: 16px; color: var(--ink-3); }
+
+/* Jets-style tags */
+.tag { font-size: .74em; font-weight: 700; padding: 4px 11px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.tag.violet { color: var(--primary); background: var(--tint); }
+.tag.green { color: var(--green); background: var(--green-tint); }
+.tag.orange { color: var(--orange); background: var(--orange-tint); }
+.tag.grey { color: var(--ink-2); background: var(--grey-tint); border-color: var(--border); }
+
+/* Jets-style cards (checks) */
+.cards { display: grid; gap: 10px; }
+.card { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; padding: 14px 16px; border-radius: 16px; border: 1.5px solid var(--border); background: var(--surface); }
+.card b { font-size: .95em; font-weight: 700; }
+.card p { grid-column: 1 / -1; margin: 0; font-size: .82em; color: var(--ink-2); line-height: 1.5; }
+.card.done { background: var(--row); border-color: transparent; }
+.card.done b { color: var(--ink-3); text-decoration: line-through; font-weight: 600; }
+
+/* Jets-style pill switch */
+.switch { display: grid; grid-template-columns: 1fr 1fr; padding: 5px; border-radius: 999px; background: var(--row); }
+.switch button { padding: 12px; border-radius: 999px; font-weight: 600; font-size: .92em; color: var(--ink-2); text-align: center; transition: background .2s, color .2s; }
+.switch button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 8px 18px -8px var(--glow); }
+
+.doc-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.doc-title h2 { margin: 0; font-size: 1.12em; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+.doc-title small { display: block; font-size: .78em; color: var(--ink-2); font-weight: 500; margin-top: 3px; }
+pre.md { margin: 0; padding: 16px; border-radius: 18px; border: 1.5px solid var(--border); font: .76em/1.75 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--ink); }
+pre.md .fm { color: var(--ink-3); }
+pre.md .h { color: var(--primary); font-weight: 600; }
+pre.md .lk { color: var(--green); }
+.reading { padding: 18px; border-radius: 18px; border: 1.5px solid var(--border); font-size: .9em; line-height: 1.7; }
+.reading h1 { font-size: 1.35em; line-height: 1.2; margin: 0 0 .5em; letter-spacing: -.02em; }
+.reading h2 { font-size: 1.08em; margin: 1.3em 0 .3em; }
+.reading h3 { font-size: .98em; margin: 1.1em 0 .2em; }
+.reading p { margin: 0 0 .8em; color: var(--ink-2); }
+.reading img { width: 100%; height: 110px; object-fit: cover; border-radius: 12px; background: var(--row); }
+.reading ol, .reading ul { padding-left: 1.2em; color: var(--ink-2); }
+
+.dock { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 14px 20px 20px; border-top: 1px solid var(--border); background: var(--surface); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; border-radius: 999px; font-weight: 700; font-size: .92em; white-space: nowrap; }
+.btn svg { width: 18px; height: 18px; }
+.btn.primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 12px 24px -12px var(--glow); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.outline { border: 1.5px solid var(--border); color: var(--ink); }
+.btn.outline:hover { background: var(--row); }
+
+.promo { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--row); }
+.promo .txt { flex: 1; }
+.promo b { display: block; font-size: .92em; font-weight: 700; }
+.promo small { font-size: .78em; color: var(--ink-2); }
+.promo .btn { padding: 10px 16px; font-size: .84em; }
+
+.toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 18px; border-radius: 999px; font-weight: 700; font-size: .84em; white-space: nowrap; z-index: 5; animation: pop .2s ease; }
 @keyframes pop { from { transform: translate(-50%, 8px); opacity: 0; } }
-
-/* ---------- brand board ---------- */
-.board { width: min(100%, 380px); display: grid; gap: 12px; }
-.card { background: var(--stage-tile); border-radius: 20px; padding: 20px; display: grid; gap: 14px; }
-.card h2 { margin: 0; font: 700 .74rem var(--ui); text-transform: uppercase; letter-spacing: .1em; color: var(--stage-ink-2); }
-.mark-big { display: flex; align-items: center; gap: 14px; font-size: 2.1rem; }
-.mark-big .wordmark { font-size: 2rem; }
-.swatches { display: grid; gap: 8px; }
-.sw { display: grid; grid-template-columns: 5.5em 1fr 1fr; gap: 6px; align-items: center; font-size: .8rem; }
-.sw b { font-weight: 700; }
-.sw div { border-radius: 10px; padding: 8px 10px; font: 600 .72rem var(--mono); }
-.sw small { display: block; font-weight: 400; opacity: .75; }
-.type-spec { display: grid; gap: 6px; }
-.type-spec .d { font: 800 2.4rem/1 var(--display); letter-spacing: -.04em; }
-.type-spec .u { font: 500 .95rem var(--ui); }
-.type-spec .m { font: .82rem var(--mono); color: var(--stage-ink-2); }
-.card p { margin: 0; font-size: .86rem; line-height: 1.55; color: var(--stage-ink-2); }
-.card p b { color: var(--stage-ink); }
 </style>
 </head>
 <body>
 <div class="stage">
-  <div class="stage-top">
-    <div>
-      <h1>VaksKit · bento direction</h1>
-      <p>The tiles are the app: tap one to open it. Example data from ui.shadcn.com; the AI-crawler rows are made up for the demo.</p>
-    </div>
-    <div class="switches">
-      <div class="switch" role="group" aria-label="Size"><button data-size="side" aria-pressed="true">Side panel</button><button data-size="full" aria-pressed="false">Full view</button></div>
-      <div class="switch" role="group" aria-label="Theme"><button data-theme="light" aria-pressed="false">Light</button><button data-theme="dark" aria-pressed="false">Dark</button><button data-theme="system" aria-pressed="true">System</button></div>
-    </div>
-  </div>
-
-  <div class="floor">
-    <div class="win">
-      <div class="win-bar"><span>Side panel</span><i>⌁ ✕</i></div>
-      <div class="app" id="app" data-size="side">
-        <header class="bar" id="bar"></header>
-        <div class="scroll" id="scroll"><div id="view"></div></div>
-      </div>
-    </div>
-
-    <aside class="board" aria-label="Brand board">
-      <section class="card theme-light" style="background:#ffffff;color:#101114">
-        <h2 style="color:#545862">Mark</h2>
-        <div class="mark-big"><span class="logo" style="width:1.6em;height:1.6em;gap:3px"><i></i><i></i><i></i><i></i></span><span class="wordmark">Vaks<span>Kit</span></span></div>
-        <p style="color:#545862">A 2×2 bento: four readers of a page. It works as a 16px toolbar icon and stays recognizable without the name. In the wordmark, “Kit” steps back so “Vaks” leads.</p>
-      </section>
-      <section class="card">
-        <h2>Colour: one hue per reader</h2>
-        <div class="swatches" id="swatches"></div>
-        <p>Same hue in both modes: <b>soft tint, deep text</b> in light; <b>deep tint, bright text</b> in dark. The score tile flips to ink.</p>
-      </section>
-      <section class="card">
-        <h2>Type</h2>
-        <div class="type-spec"><span class="d">96/100</span><span class="u">Figtree for the interface, clear at small sizes.</span><span class="m">JetBrains Mono · code &amp; exports</span></div>
-        <p><b>Bricolage Grotesque</b> carries numbers and headlines: the personality of the brand.</p>
-      </section>
-    </aside>
+  <header>
+    <h1>VaksKit · side panel</h1>
+    <p>Built from your references: Jets and Captures. Home and Markdown, in light and dark. Every tile, row and switch works. Data: the real Markdown VaksKit now produces for holdmyseatnow.com.</p>
+  </header>
+  <div class="frames">
+    <div class="frame-wrap"><div class="vk" data-screen="home"></div><span>Home · light</span></div>
+    <div class="frame-wrap"><div class="vk" data-screen="markdown"></div><span>Markdown · light</span></div>
+    <div class="frame-wrap"><div class="vk dark" data-screen="home"></div><span>Home · dark</span></div>
+    <div class="frame-wrap"><div class="vk dark" data-screen="seo"></div><span>SEO checks · dark</span></div>
   </div>
 </div>
 
 <script>
 (() => {
-  // ---- example data (ui.shadcn.com, from your screenshot) ----
-  const P = {
-    url: 'https://ui.shadcn.com/', host: 'ui.shadcn.com',
-    title: 'shadcn/ui - The Foundation for your Design System',
-    desc: 'Composable, accessible components with thoughtful defaults. Build your own component library with code you can customize, extend, and make your own.',
-    canonical: 'https://ui.shadcn.com/', lang: 'en', keywords: 'Next.js, React, Tailwind CSS, Components, shadcn',
-    words: 13752, mdWords: 1108, h1: 1, images: 2, noAlt: 0, internal: 12, external: 6,
-    og: { title: 'The Foundation for your Design System', desc: 'Composable, accessible components with thoughtful defaults. Build your own component library with code you can customize, extend, and make your own.' },
-    headings: [[1, 'The Foundation for your Design System'], [2, 'Components'], [3, 'Button'], [3, 'Input'], [3, 'Alert Dialog'], [2, 'Blocks'], [2, 'Charts'], [2, 'Themes']],
-    bots: [['GPTBot', 'OpenAI', true], ['ClaudeBot', 'Anthropic', true], ['Google-Extended', 'Gemini', true], ['Applebot-Extended', 'Apple', true], ['PerplexityBot', 'Perplexity', false], ['CCBot', 'Common Crawl', true]],
+  const I = {
+    logo: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 7.5 12 17l5.5-9.5"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8M21 3v5h-5"/></svg>',
+    gauge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/></svg>',
+    doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>',
+    braces: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1M16 21h1a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2 2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
+    bot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 13v2M15 13v2"/></svg>',
+    code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+    chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="3"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/></svg>',
+    expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
   };
+
   const MD = `---
-title: "${P.title}"
-description: "${P.desc}"
-source: "${P.url}"
+title: "Book Flights Now, Pay Later | Hold My Seat Now"
+description: "Book your flight today and pay over time."
+site: "holdmyseatnow.com"
+source: "https://www.holdmyseatnow.com/"
 lang: "en"
 ---
 
-# The Foundation for your Design System
+# Book your flight now. Pay over time.
 
-Composable, accessible components with thoughtful defaults. Build your own component library with code you can customize, extend, and make your own.
+Traveling shouldn’t drain your wallet. We secure your ticket instantly with flexible repayment options.
 
-[Get Started](https://ui.shadcn.com/docs) [View Components](https://ui.shadcn.com/docs/components)
+## Travel smarter, not harder
 
-## Components
+We handle the booking stress so you can focus on what matters - the adventure ahead.
 
-Button, Input, Badge, Alert Dialog, Button Group and more. Copy the code into your project and make it yours.
+### Tickets secured instantly
 
-## Blocks
+We purchase your tickets immediately. No waiting, no risk of missing out.
 
-Ready-made sections for dashboards, sign-in pages and sidebars.
+### Flexible payment plans
 
-## Charts
+Split your payments into weekly, biweekly, or monthly installments that fit your budget.
 
-Beautiful charts built with Recharts. Copy and paste into your apps.
+## Three simple steps
+
+1. Find your flight
+2. Pay small upfront fee
+3. Pay the rest later
+
+## Questions? We've got answers.
+
+[Secure Your Trip](https://www.holdmyseatnow.com/#home-flights)
 `;
-  const LLMS = `# shadcn/ui\n\n> Beautifully designed components that you can copy and paste into your apps.\n\n## Docs\n\n- [Introduction](https://ui.shadcn.com/docs)\n- [Components](https://ui.shadcn.com/docs/components)\n- [Theming](https://ui.shadcn.com/docs/theming)\n`;
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const paint = (t) => esc(t)
+    .replace(/^(---[\s\S]*?---)/, '<span class="fm">$1</span>')
+    .replace(/^(#{1,6} .*)$/gm, '<span class="h">$1</span>')
+    .replace(/(\]\()([^)]+)(\))/g, '$1<span class="lk">$2</span>$3');
 
-  const S = { view: 'home', size: 'side', theme: 'system', fmt: 'json', md: 'source', cv: 'preview',
-    editor: '# Launch notes\n\nRead any page **the way machines do**.\n\n- Google: title, description, canonical\n- Social: the share card\n- AI: llms.txt and crawler access\n' };
-  const app = document.getElementById('app');
-  const $ = (q) => document.querySelector(q);
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const n = (x) => x.toLocaleString('en-US');
-  const allowed = P.bots.filter((b) => b[2]).length;
+  const head = (vk, s) => s === 'home'
+    ? `<div class="head"><div class="brand"><span class="logo">${I.logo}</span>VaksKit</div>
+        <div class="head-actions"><button class="ibtn" data-act="theme" aria-label="Switch theme">${vk.classList.contains('dark') ? I.moon : I.sun}</button><button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`
+    : `<div class="head"><button class="brand" data-go="home" style="gap:8px"><span class="ibtn" style="width:32px;height:32px;background:var(--row)">${I.back}</span>${s === 'markdown' ? 'Markdown' : 'SEO checks'}</button>
+        <div class="head-actions"><button class="ibtn" aria-label="More options" data-act="toast" data-msg="Settings, history and help">${I.more}</button></div></div>`;
 
-  const cut = (text, at) => {
-    if (text.length <= at) return esc(text);
-    const i = text.lastIndexOf(' ', at);
-    return `${esc(text.slice(0, i))}<span class="cut">${esc(text.slice(i))}</span>`;
-  };
-  const ruler = (len, marks, max) => {
-    const p = (v) => Math.min(100, (v / max) * 100);
-    return `<div class="ruler" aria-hidden="true"><div class="track"></div><div class="fill" style="width:${p(len)}%"></div>${marks.map(([v, l]) => `<div class="tick" style="left:${p(v)}%"></div><div class="lab" style="left:${p(v)}%">${l}</div>`).join('')}</div>`;
-  };
-  const seo = () => ({ title: P.title, description: P.desc, canonical: P.canonical, lang: P.lang, keywords: P.keywords, openGraph: { 'og:title': P.og.title, 'og:description': P.og.desc, 'og:type': 'website' } });
-  const exportText = () => {
-    const d = seo();
-    if (S.fmt === 'json') return JSON.stringify(d, null, 2);
-    if (S.fmt === 'ts') return 'export const seo = ' + JSON.stringify(d, null, 2).replace(/"([A-Za-z_$][\w$]*)":/g, '$1:') + ' as const;';
-    if (S.fmt === 'html') return `<title>${P.title}</title>\n<meta name="description" content="${P.desc}" />\n<link rel="canonical" href="${P.canonical}" />\n<meta property="og:title" content="${P.og.title}" />\n<meta property="og:type" content="website" />`;
-    return `# SEO: ${P.title}\n\n- Title: 49/60\n- Description: ${P.desc.length}/160\n- Canonical: ${P.canonical}\n- Robots: not set (indexable by default)`;
-  };
-  const paint = (t, kind) => {
-    let h = esc(t);
-    if (kind === 'json' || kind === 'ts') h = h.replace(/(&quot;.*?&quot;|'[^']*')(\s*:)?/g, (m, s, c) => c ? `<span class="k">${s}</span>${c}` : `<span class="s">${s}</span>`);
-    if (kind === 'html') h = h.replace(/(&quot;.*?&quot;)/g, '<span class="s">$1</span>').replace(/(&lt;\/?[a-z0-9]+)/g, '<span class="c">$1</span>');
-    if (kind === 'md') h = h.replace(/^(---[\s\S]*?---)/, '<span class="c">$1</span>').replace(/^(#+ .*)$/gm, '<span class="h">$1</span>');
-    return h;
-  };
-  let tt;
-  const toast = (m) => { clearTimeout(tt); app.querySelector('.toast')?.remove(); const t = document.createElement('div'); t.className = 'toast'; t.role = 'status'; t.textContent = m; app.appendChild(t); tt = setTimeout(() => t.remove(), 1700); };
+  const site = `<div class="site"><span class="fav">HM</span><div class="txt"><b>holdmyseatnow.com</b><small><i></i>Analyzed just now</small></div><button class="ibtn" aria-label="Analyze again" data-act="toast" data-msg="Analyzed again">${I.refresh}</button></div>`;
 
-  // ---- top bar ----
-  const TITLES = { google: 'Google', ai: 'AI readers', social: 'Social', md: 'Markdown', export: 'Export', convert: 'MD → HTML' };
-  function bar() {
-    const dark = app.classList.contains('dark');
-    $('#bar').innerHTML = S.view === 'home'
-      ? `<span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span><span class="wordmark">Vaks<span>Kit</span></span></span>
-         <span class="host"><span class="chip"><span class="dot"></span><span>${P.host}</span></span></span>
-         <button class="round" data-act="theme" aria-label="Switch to ${dark ? 'light' : 'dark'} mode" title="Theme">${dark ? '☾' : '☀'}</button>
-         <button class="round" data-act="full" aria-label="${S.size === 'full' ? 'Back to side panel' : 'Open full view'}" title="Full view">${S.size === 'full' ? '↙' : '↗'}</button>`
-      : `<button class="back" data-go="home">← ${TITLES[S.view]}</button>
-         <span class="host"><span class="chip"><span class="dot"></span><span>${P.host}</span></span></span>
-         <button class="round" data-act="theme" aria-label="Switch theme">${dark ? '☾' : '☀'}</button>`;
-  }
-
-  // ---- home: the bento ----
   function home() {
-    const h2 = P.headings.filter((h) => h[0] === 2).length;
-    return `<div class="bento">
-      <button class="tile t-hero" data-go="google">
-        <span class="k"><span>Search health</span><span class="go">→</span></span>
-        <span class="score">96<small>/100</small></span>
-        <span><h2>Ready for search.</h2><span class="sub">One thing to look at: the description is cut on phones.</span></span>
-      </button>
-
-      <button class="tile t-google" data-go="google">
-        <span class="k"><span>Google · mobile</span><span class="go">→</span></span>
-        <span class="serp"><span class="u">${P.host}</span><span class="t">${esc(P.title)}</span><span class="d">${cut(P.desc, 120)}</span></span>
-        <span class="pills"><span class="pill">Title 49/60</span><span class="pill">Description 148/160</span></span>
-      </button>
-
-      <button class="tile t-ai" data-go="ai">
-        <span class="k"><span>AI readers</span><span class="go">→</span></span>
-        <span class="big">${allowed}/${P.bots.length}</span>
-        <p class="small">crawlers allowed · llms.txt found</p>
-      </button>
-
-      <button class="tile t-social" data-go="social">
-        <span class="k"><span>Social</span><span class="go">→</span></span>
-        <span class="thumb">${P.og.title}</span>
-        <p class="small">Share card ready</p>
-      </button>
-
-      <div class="tile t-md link" data-go="md" role="button" tabindex="0">
-        <span class="k"><span>Markdown</span><span class="go">→</span></span>
-        <div class="mdlines">${paint(MD.split('\n').slice(6, 14).join('\n'), 'md')}</div>
-        <div class="row"><span class="small"><b>${n(P.mdWords)}</b> words, clean</span><button class="btn on-tile" data-act="toast" data-msg="Markdown copied"><span>Copy</span></button></div>
+    return `<div class="body">
+      ${site}
+      <div class="tiles">
+        <button class="tile primary" data-go="seo"><span class="ic">${I.gauge}</span><span><span class="score">92<span>/100</span></span><b>SEO report</b><small>2 things to improve</small></span></button>
+        <button class="tile soft" data-go="markdown"><span class="ic">${I.doc}</span><span><b>Markdown</b><small>556 words · tap to copy</small></span></button>
       </div>
-
-      <div class="tile t-words">
-        <span class="k"><span>Words</span></span>
-        <span class="big">${(P.words / 1000).toFixed(1)}k</span>
-        <div class="bars" aria-hidden="true">${[3, 8, 5, 9, 4, 7, 6, 10, 5].map((v, i) => `<i style="height:${v * 10}%" class="${i === 7 ? 'on' : ''}"></i>`).join('')}</div>
-        <p class="small muted">${P.h1} main heading · ${h2} sections</p>
+      <div class="label"><h2>Quick actions</h2></div>
+      <div class="rows">
+        <button class="row" data-act="toast" data-msg="SEO copied as JSON">${I.braces}<span class="grow">Export SEO</span><span class="tag violet">JSON · TS</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Share card preview">${I.share}<span class="grow">Share preview</span><span class="tag green">Ready</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="llms.txt and AI crawlers">${I.bot}<span class="grow">AI readers</span><span class="tag orange">No llms.txt</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Markdown → HTML converter">${I.code}<span class="grow">Markdown → HTML</span>${I.chev}</button>
       </div>
+    </div>`;
+  }
 
-      <div class="tile t-links">
-        <span class="k"><span>Links</span></span>
-        <span class="big">${P.internal}<span style="opacity:.3"> · </span>${P.external}</span>
-        <p class="small muted">inside · outside<br />${P.images} images, all described</p>
+  function markdown(vk) {
+    const view = vk.dataset.view || 'md';
+    return `<div class="body">
+      <div class="switch" role="group" aria-label="View"><button data-view="md" aria-pressed="${view === 'md'}">Markdown</button><button data-view="preview" aria-pressed="${view === 'preview'}">Preview</button></div>
+      <div class="doc-title"><div><h2>Book your flight now. Pay over time.</h2><small>holdmyseatnow.com · 556 words · 8 sections</small></div><span class="tag violet">.md</span></div>
+      ${view === 'md' ? `<pre class="md">${paint(MD)}</pre>` : `<div class="reading">${window.marked ? marked.parse(MD.replace(/^---[\s\S]*?---\n/, '')) : ''}</div>`}
+    </div>
+    <div class="dock"><button class="btn primary" data-act="toast" data-msg="Markdown copied">${I.copy}Copy Markdown</button><button class="btn outline" data-act="toast" data-msg="Saved holdmyseatnow-com.md" aria-label="Download .md">${I.down}</button></div>`;
+  }
+
+  function seo() {
+    return `<div class="body">
+      ${site}
+      <div class="switch" role="group" aria-label="Checks"><button aria-pressed="true">To review · 2</button><button data-act="toast" data-msg="12 checks passed">Passed · 12</button></div>
+      <div class="label"><h2>Today, 4 November</h2></div>
+      <div class="cards">
+        <div class="card"><b>Description cut on phones</b><span class="tag orange">Improve</span><p>Google shows about 120 characters on mobile. Move the key words to the start.</p></div>
+        <div class="card"><b>Add an llms.txt file</b><span class="tag violet">AI</span><p>A short guide that helps ChatGPT and Claude describe your site correctly.</p></div>
+        <div class="card"><b>Title length</b><span class="tag green">Good</span><p>46 of 60 characters. Fully visible in search.</p></div>
+        <div class="card"><b>Share card</b><span class="tag green">Good</span><p>og:title, og:description and a 1200 × 630 image are set.</p></div>
+        <div class="card done"><b>One main heading (H1)</b><span class="tag grey">Done</span></div>
       </div>
-
-      <div class="tile t-export">
-        <span class="k"><span>Export SEO</span><button class="go" data-go="export" aria-label="Open export">→</button></span>
-        <p class="small">Drop it into any project.</p>
-        <div class="fmt">${['json', 'ts', 'html', 'md'].map((f) => `<button data-act="toast" data-msg="SEO copied as ${f.toUpperCase()}"><span>${f}</span></button>`).join('')}</div>
-      </div>
-
-      <button class="tile t-convert" data-go="convert">
-        <span><span class="k" style="display:block">Markdown → HTML</span><span class="small muted">Write or paste Markdown, get clean HTML.</span></span>
-        <span class="btn">Open</span>
-      </button>
     </div>`;
   }
 
-  // ---- detail views ----
-  function google() {
-    return `<div class="detail two">
-      <section class="tile t-google wide"><span class="k"><span>On a phone</span></span>
-        <span class="serp"><span class="u">${P.host}</span><span class="t">${esc(P.title)}</span><span class="d">${cut(P.desc, 120)}</span></span>
-        <p class="small">Highlighted words are cut on phones. Put what matters in the first 120 characters.</p></section>
-      <section class="tile t-google"><span class="k"><span>Title</span><span>${P.title.length} / 60</span></span>
-        <div class="val">${esc(P.title)}</div>${ruler(P.title.length, [[60, '60 · Google']], 72)}</section>
-      <section class="tile t-google"><span class="k"><span>Description</span><span>${P.desc.length} / 160</span></span>
-        <div class="val">${cut(P.desc, 120)}</div>${ruler(P.desc.length, [[120, '120 · mobile'], [160, '160 · desktop']], 176)}</section>
-      <section class="tile"><span class="k"><span>Tags</span></span>
-        <dl class="kv">
-          <div><dt>canonical</dt><dd>${P.canonical}</dd></div>
-          <div><dt>robots</dt><dd>not set<small>Fine: pages are indexable by default.</small></dd></div>
-          <div><dt>language</dt><dd>${P.lang}</dd></div>
-          <div><dt>keywords</dt><dd>${esc(P.keywords)}<small>Google ignores this tag.</small></dd></div>
-        </dl></section>
-      <section class="tile"><span class="k"><span>Headings</span><span>${P.headings.length}</span></span>
-        <dl class="kv">${P.headings.map(([l, t]) => `<div><dt>h${l}</dt><dd style="padding-left:${(l - 1) * .9}em">${esc(t)}</dd></div>`).join('')}</dl></section>
-    </div>`;
+  const SCREENS = { home, markdown, seo };
+  function render(vk) {
+    const s = vk.dataset.screen;
+    vk.innerHTML = head(vk, s) + SCREENS[s](vk);
   }
-  function ai() {
-    return `<div class="detail two">
-      <section class="tile t-ai"><span class="k"><span>Who may read this site</span><span>robots.txt</span></span>
-        <span class="big">${allowed}/${P.bots.length}</span>
-        <ul class="bots">${P.bots.map(([b, who, ok]) => `<li><span><b>${b}</b><small>${who}</small></span><span class="st ${ok ? 'yes' : 'no'}">${ok ? 'Allowed' : 'Blocked'}</span></li>`).join('')}</ul></section>
-      <section class="tile t-ai"><span class="k"><span>llms.txt</span><span>2.1 KB</span></span>
-        <p class="small">A short guide to the site for AI assistants like ChatGPT and Claude.</p>
-        <pre class="code">${paint(LLMS, 'md')}</pre>
-        <div class="row"><button class="btn on-tile" data-act="toast" data-msg="llms.txt copied"><span>Copy</span></button><button class="btn soft" data-act="toast" data-msg="Saved llms.txt">Download</button></div></section>
-    </div>`;
+  function toast(vk, msg) {
+    vk.querySelector('.toast')?.remove();
+    const t = document.createElement('div'); t.className = 'toast'; t.role = 'status'; t.textContent = msg;
+    vk.appendChild(t); setTimeout(() => t.remove(), 1600);
   }
-  function social() {
-    return `<div class="detail two">
-      <section class="tile t-social"><span class="k"><span>Facebook · LinkedIn · Slack</span></span>
-        <div class="share"><div class="img"><b>${P.og.title}</b><span>${P.og.desc}</span></div><div class="meta"><small>${P.host}</small><b>${P.og.title}</b></div></div></section>
-      <section class="tile"><span class="k"><span>Open Graph tags</span></span>
-        <dl class="kv"><div><dt>og:title</dt><dd>${P.og.title}</dd></div><div><dt>og:description</dt><dd>${esc(P.og.desc)}</dd></div><div><dt>og:type</dt><dd>website</dd></div><div><dt>twitter:card</dt><dd>summary_large_image</dd></div></dl></section>
-    </div>`;
-  }
-  function md() {
-    const wide = S.size === 'full';
-    const views = wide ? [['source', 'Markdown'], ['read', 'Preview'], ['both', 'Side by side']] : [['source', 'Markdown'], ['read', 'Preview']];
-    if (!wide && S.md === 'both') S.md = 'source';
-    const src = `<pre class="code lines" style="max-height:none">${paint(MD, 'md').split('\n').map((l) => `<span class="l">${l || ' '}</span>`).join('')}</pre>`;
-    const read = `<div class="reading">${window.marked ? marked.parse(MD.replace(/^---[\s\S]*?---\n/, '')) : ''}</div>`;
-    return `<div class="detail">
-      <section class="tile t-md"><div class="row"><span class="k" style="flex:1"><span>${n(P.mdWords)} words · main content</span></span>
-        <div class="fmt">${views.map(([v, l]) => `<button data-md="${v}" aria-pressed="${S.md === v}"><span>${l}</span></button>`).join('')}</div></div>
-        <div class="row"><span class="small">Menus, header and footer left out · links made absolute</span>
-          <span class="row" style="gap:6px"><button class="btn on-tile" data-act="toast" data-msg="Markdown copied"><span>Copy</span></button><button class="btn soft" data-act="toast" data-msg="Saved ui-shadcn-com.md">Download</button></span></div></section>
-      ${S.md === 'both' ? `<div class="split">${src}${read}</div>` : S.md === 'read' ? read : src}
-    </div>`;
-  }
-  function exportV() {
-    return `<div class="detail">
-      <section class="tile t-export"><span class="k"><span>Export SEO for any project</span></span>
-        <div class="row"><div class="fmt">${[['json', 'JSON'], ['ts', 'TypeScript'], ['html', 'HTML tags'], ['md', 'Markdown']].map(([f, l]) => `<button data-fmt="${f}" aria-pressed="${S.fmt === f}"><span>${l}</span></button>`).join('')}</div>
-        <span class="row" style="gap:6px"><button class="btn on-tile" data-act="toast" data-msg="Copied seo.${S.fmt}"><span>Copy</span></button><button class="btn soft" data-act="toast" data-msg="Saved seo.${S.fmt}">Download</button></span></div></section>
-      <pre class="code">${paint(exportText(), S.fmt === 'md' ? 'md' : S.fmt)}</pre>
-    </div>`;
-  }
-  function convert() {
-    const out = window.marked ? marked.parse(S.editor) : esc(S.editor);
-    return `<div class="detail">
-      <section class="tile"><div class="row"><span class="k" style="flex:1"><label for="w">Write Markdown</label></span>
-        <div class="fmt">${[['preview', 'Preview'], ['code', 'HTML']].map(([v, l]) => `<button data-cv="${v}" aria-pressed="${S.cv === v}"><span>${l}</span></button>`).join('')}</div></div>
-        <div class="row"><span class="small muted">Converts as you type.</span><span class="row" style="gap:6px"><button class="btn" data-act="toast" data-msg="HTML copied">Copy HTML</button><button class="btn soft" data-act="toast" data-msg="Saved document.html">Download</button></span></div></section>
-      <div class="split"><textarea class="write" id="w" spellcheck="false">${esc(S.editor)}</textarea>
-        <div id="out">${S.cv === 'code' ? `<pre class="code">${paint(out.trim(), 'html')}</pre>` : `<div class="reading">${out}</div>`}</div></div>
-    </div>`;
-  }
-
-  // ---- brand board swatches ----
-  const SW = [['Google', 'sky', ['#dcebff', '#0b3a75'], ['#0d2140', '#cfe3ff']], ['Social', 'coral', ['#ffe1da', '#7a1f0e'], ['#3a1710', '#ffd6cc']], ['AI', 'lilac', ['#ece3ff', '#3e1f80'], ['#23164a', '#e3d8ff']], ['Markdown', 'lagoon', ['#d3f3ec', '#0b4d42'], ['#0a2e28', '#c4f2e7']], ['Export', 'sun', ['#fff0c2', '#5c4100'], ['#332708', '#ffebb0']], ['Score', 'ink', ['#101114', '#f5f6f8'], ['#f1f2f4', '#0b0c0e']]];
-  $('#swatches').innerHTML = SW.map(([name, hue, l, d]) => `<div class="sw"><b>${name}<small>${hue}</small></b><div style="background:${l[0]};color:${l[1]}">light</div><div style="background:${d[0]};color:${d[1]}">dark</div></div>`).join('');
-
-  // ---- render ----
-  const media = matchMedia('(prefers-color-scheme: dark)');
-  const applyTheme = () => app.classList.toggle('dark', S.theme === 'dark' || (S.theme === 'system' && media.matches));
-  media.addEventListener('change', () => render());
-  const VIEWS = { home, google, ai, social, md, export: exportV, convert };
-  function render() {
-    applyTheme();
-    app.dataset.size = S.size;
-    document.querySelectorAll('.switch [data-size]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.size === S.size));
-    document.querySelectorAll('.switch [data-theme]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.theme === S.theme));
-    bar();
-    $('#view').innerHTML = VIEWS[S.view]();
-  }
-  const go = (v) => { S.view = v; history.replaceState(null, '', '#' + v); render(); $('#scroll').scrollTop = 0; };
-
+  document.querySelectorAll('.vk').forEach(render);
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('button, [data-go]'); if (!el) return;
-    const d = el.dataset;
-    if (d.act === 'toast') { e.stopPropagation(); return toast(d.msg); }
-    if (d.size && el.closest('.switch')) { S.size = d.size; return render(); }
-    if (d.theme && el.closest('.switch')) { S.theme = d.theme; return render(); }
-    if (d.act === 'theme') { S.theme = app.classList.contains('dark') ? 'light' : 'dark'; return render(); }
-    if (d.act === 'full') { S.size = S.size === 'full' ? 'side' : 'full'; return render(); }
-    if (d.fmt) { S.fmt = d.fmt; return render(); }
-    if (d.md) { S.md = d.md; return render(); }
-    if (d.cv) { S.cv = d.cv; return render(); }
-    if (d.go) return go(d.go);
+    const b = e.target.closest('button'); const vk = e.target.closest('.vk');
+    if (!b || !vk) return;
+    if (b.dataset.go) { vk.dataset.screen = b.dataset.go; return render(vk); }
+    if (b.dataset.view) { vk.dataset.view = b.dataset.view; return render(vk); }
+    if (b.dataset.act === 'theme') { vk.classList.toggle('dark'); return render(vk); }
+    if (b.dataset.act === 'toast') return toast(vk, b.dataset.msg);
   });
-  document.addEventListener('keydown', (e) => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role="button"][data-go]')) { e.preventDefault(); go(e.target.dataset.go); }
-    if (e.key === 'Escape' && S.view !== 'home') go('home');
-  });
-  document.addEventListener('input', (e) => {
-    if (e.target.id !== 'w') return;
-    S.editor = e.target.value;
-    const out = window.marked ? marked.parse(S.editor) : esc(S.editor);
-    $('#out').innerHTML = S.cv === 'code' ? `<pre class="code">${paint(out.trim(), 'html')}</pre>` : `<div class="reading">${out}</div>`;
-  });
-  const fromHash = () => { const h = location.hash.slice(1); if (VIEWS[h]) S.view = h; render(); };
-  window.addEventListener('hashchange', fromHash);
-  fromHash();
 })();
 </script>
 </body>
