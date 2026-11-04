@@ -8,8 +8,9 @@ type View = 'preview' | 'raw';
 
 /** Page -> Markdown: preview it, read the raw text, copy, download or open full width. */
 export function MarkdownTab({ markdown, url, title, onSendToConverter }: { markdown: string; url: string; title: string; onSendToConverter: () => void }) {
-  const [view, setView] = useState<View>('preview');
-  const html = useMemo(() => markdownToHtml(markdown), [markdown]);
+  const [view, setView] = useState<View>('raw');
+  // Raw Markdown first; the preview is only rendered when asked for.
+  const html = useMemo(() => (view === 'preview' ? markdownToHtml(markdown) : ''), [markdown, view]);
   const words = useMemo(() => markdown.split(/\s+/).filter(Boolean).length, [markdown]);
 
   return (
@@ -20,8 +21,8 @@ export function MarkdownTab({ markdown, url, title, onSendToConverter }: { markd
             value={view}
             onChange={setView}
             options={[
-              { value: 'preview', label: 'Preview' },
               { value: 'raw', label: 'Markdown' },
+              { value: 'preview', label: 'Preview' },
             ]}
           />
         }
