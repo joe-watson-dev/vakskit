@@ -213,6 +213,15 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 .switch button { padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: .82em; color: var(--ink-2); text-align: center; transition: background .2s, color .2s; }
 .switch button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 10px -6px var(--glow); }
 
+.doc-head { display: grid; gap: 6px; padding: 2px 2px 4px; }
+.src-line { display: flex; align-items: center; gap: 6px; font-size: .78em; color: var(--ink-3); font-weight: 500; }
+.src-line .slash { opacity: .6; margin-left: -3px; }
+.fav.mini { width: 16px; height: 16px; border-radius: 4px; font-size: .5em; }
+.doc-head h2 { margin: 0; font-size: 1.12em; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; text-wrap: balance; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.stats { display: flex; margin-top: 2px; }
+.stats span { display: flex; align-items: baseline; gap: 4px; font-size: .74em; color: var(--ink-3); padding: 0 10px; border-left: 1px solid var(--border); white-space: nowrap; }
+.stats span:first-child { padding-left: 0; border-left: 0; }
+.stats b { font: 600 1.18em var(--mono); color: var(--ink); letter-spacing: -.02em; }
 .doc-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .doc-title h2 { margin: 0; font-size: 1.12em; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
 .doc-title small { display: block; font-size: .78em; color: var(--ink-2); font-weight: 500; margin-top: 3px; }
@@ -412,7 +421,11 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
   function markdown(vk) {
     const view = vk.dataset.view || 'md';
     return `<div class="body">
-      <div class="doc-title"><div><h2>Book your flight now. Pay over time.</h2><small>holdmyseatnow.com · 556 words · 8 sections</small></div><span class="tag violet">.md</span></div>
+      <div class="doc-head">
+        <div class="src-line"><span class="fav mini">HM</span>holdmyseatnow.com<span class="slash">/</span></div>
+        <h2>Book your flight now. Pay over time.</h2>
+        <div class="stats"><span><b>556</b>words</span><span><b>8</b>sections</span><span><b>4</b>images</span><span><b>3</b>min read</span></div>
+      </div>
       <div class="unveil" data-k="${view}">${view === 'md' ? `<pre class="md">${paint(MD)}</pre>` : `<div class="reading">${window.marked ? marked.parse(MD.replace(/^---[\s\S]*?---\n/, '')) : ''}</div>`}</div>
     </div>
     <div class="dock"><button class="btn primary" data-act="toast" data-msg="Markdown copied">${I.copy}Copy Markdown</button><button class="btn outline" data-act="toast" data-msg="Saved holdmyseatnow-com.md" aria-label="Download .md">${I.down}</button></div>`;
