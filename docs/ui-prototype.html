@@ -207,6 +207,16 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 .tag.violet { color: var(--tag-violet, var(--primary)); background: var(--tint); }
 .tag.green { color: var(--green); background: var(--green-tint); }
 .tag.orange { color: var(--orange); background: var(--orange-tint); }
+/* file-type accents: the colours developers already know */
+.tag.ext { border-color: transparent; }
+.tag.ext.json { color: #a16207; background: #fef3c7; }
+.tag.ext.ts { color: #2563b0; background: #e1edfb; }
+.tag.ext.md { color: #0f766e; background: #d9f4ef; }
+.tag.ext.html { color: #c2410c; background: #ffe8dc; }
+.vk.dark .tag.ext.json { color: #fcd34d; background: rgb(252 211 77 / .13); }
+.vk.dark .tag.ext.ts { color: #7cb3ff; background: rgb(124 179 255 / .14); }
+.vk.dark .tag.ext.md { color: #5eead4; background: rgb(94 234 212 / .12); }
+.vk.dark .tag.ext.html { color: #fb923c; background: rgb(251 146 60 / .14); }
 .tag.grey { color: var(--ink-2); background: var(--grey-tint); border-color: var(--border); }
 
 /* Jets-style cards (checks) */
@@ -419,10 +429,10 @@ Split your payments into _weekly_, _biweekly_, or _monthly_ installments that fi
       </div>
       <div class="label"><h2>Use in your project</h2></div>
       <div class="rows">
-        <button class="row" data-act="toast" data-msg="SEO copied as JSON"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as JSON<small>Title, meta, Open Graph, JSON-LD</small></span><span class="tag grey">.json</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="SEO copied as TypeScript"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as TypeScript<small>A typed object, ready to import</small></span><span class="tag grey">.ts</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="Saved holdmyseatnow-com.md"><span class="ri">${I.down}</span><span class="grow">Download page as Markdown<small>556 words, front-matter included</small></span><span class="tag grey">.md</span>${I.chev}</button>
-        <button class="row" data-act="toast" data-msg="Markdown → HTML converter"><span class="ri">${I.code}</span><span class="grow">Markdown → HTML<small>Paste Markdown, get clean HTML</small></span><span class="tag grey">.html</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="SEO copied as JSON"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as JSON<small>Title, meta, Open Graph, JSON-LD</small></span><span class="tag ext json">.json</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="SEO copied as TypeScript"><span class="ri">${I.braces}</span><span class="grow">Copy SEO as TypeScript<small>A typed object, ready to import</small></span><span class="tag ext ts">.ts</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Saved holdmyseatnow-com.md"><span class="ri">${I.down}</span><span class="grow">Download page as Markdown<small>556 words, front-matter included</small></span><span class="tag ext md">.md</span>${I.chev}</button>
+        <button class="row" data-act="toast" data-msg="Markdown → HTML converter"><span class="ri">${I.code}</span><span class="grow">Markdown → HTML<small>Paste Markdown, get clean HTML</small></span><span class="tag ext html">.html</span>${I.chev}</button>
       </div>
     </div>`;
   }
