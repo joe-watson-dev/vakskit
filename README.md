@@ -10,7 +10,6 @@ A Chrome extension (Manifest V3, side panel) for developers and content people:
 The side panel stays open while you browse. With **Auto-analyze** on, every tab or page you open is analyzed on its own.
 
 - **Home** tab: summary of the current page, quick Copy / Download actions, and a card for every feature.
-- **Full view**: the ⤢ button opens PageKit full width in its own tab, bound to that page; the ↗ buttons open a single preview or file in a new tab.
 - **Light / Dark / System** theme (System by default), from the sun/moon button.
 
 ## Install (development)

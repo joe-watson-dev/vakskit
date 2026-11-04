@@ -3,44 +3,10 @@ import type { PageResult } from './types';
 
 const ALL_SITES = { origins: ['<all_urls>'] };
 
-/**
- * In the side panel PageKit follows the active tab. In the full view
- * (sidepanel.html?tab=123, opened in its own tab) it stays on that one page.
- */
-export const FULL_VIEW_TAB_ID = Number(new URLSearchParams(location.search).get('tab')) || null;
-
+/** The side panel follows the active tab. */
 export async function getTargetTab(): Promise<chrome.tabs.Tab | undefined> {
-  if (FULL_VIEW_TAB_ID) return chrome.tabs.get(FULL_VIEW_TAB_ID).catch(() => undefined);
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   return tab;
-}
-
-/**
- * True when the tab shows one of PageKit's own pages (the full view).
- * Checked through Chrome's list of PageKit pages, because the tab's URL
- * may be hidden from the extension.
- */
-export async function isOwnTab(tab?: chrome.tabs.Tab) {
-  if (!tab?.id) return false;
-  if (tab.url?.startsWith(chrome.runtime.getURL(''))) return true;
-  const pages = await chrome.runtime.getContexts({ contextTypes: [chrome.runtime.ContextType.TAB] }).catch(() => []);
-  return pages.some((c) => c.tabId === tab.id);
-}
-
-/**
- * Open the whole app in a browser tab, bound to the given page.
- * If a full view for that page is already open, switch to it instead of opening another.
- */
-export async function openFullView(tabId: number) {
-  const url = chrome.runtime.getURL(`sidepanel.html?tab=${tabId}`);
-  const open = await chrome.runtime.getContexts({ contextTypes: [chrome.runtime.ContextType.TAB], documentUrls: [url] }).catch(() => []);
-  const existing = open.find((c) => c.tabId >= 0);
-  if (existing) {
-    await chrome.tabs.update(existing.tabId, { active: true });
-    if (existing.windowId >= 0) await chrome.windows.update(existing.windowId, { focused: true });
-    return;
-  }
-  await chrome.tabs.create({ url });
 }
 
 export const hasSiteAccess = () => chrome.permissions.contains(ALL_SITES);

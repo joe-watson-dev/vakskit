@@ -80,7 +80,7 @@ export function DownloadButton({ text, filename, type, label = 'Download' }: { t
 }
 
 /** Opens the content in its own browser tab, at full width. */
-export function OpenTabButton({ text, type, title = 'Open full view in a new tab' }: { text: string; type?: string; title?: string }) {
+export function OpenTabButton({ text, type, title = 'Open in a new tab' }: { text: string; type?: string; title?: string }) {
   return (
     <Button onClick={() => openInTab(text, type)} title={title} aria-label={title}>
       <ExternalLink className={ICON} />

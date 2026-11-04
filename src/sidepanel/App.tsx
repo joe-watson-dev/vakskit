@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  FULL_VIEW_TAB_ID,
   analyzeTab,
   fetchSiteFiles,
   getTargetTab,
   hasSiteAccess,
   isAnalyzable,
-  isOwnTab,
-  openFullView,
   requestSiteAccess,
   type SiteFile,
 } from '@/lib/chrome';
@@ -18,7 +15,7 @@ import { useTheme } from '@/lib/theme';
 import type { Seo } from '@/lib/types';
 import { Button, Empty, ICON } from '@/components/ui';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { Code, FileText, Home, Maximize, Refresh, Search } from '@/components/icons';
+import { Code, FileText, Home, Refresh, Search } from '@/components/icons';
 import { HomeTab } from './HomeTab';
 import { SeoTab } from './SeoTab';
 import { MarkdownTab } from './MarkdownTab';
@@ -43,7 +40,6 @@ export default function App() {
   const [siteFiles, setSiteFiles] = useState<SiteFile[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [mainOnly, setMainOnly] = useState(true);
   const [auto, setAuto] = useState(true);
   const [access, setAccess] = useState<boolean | null>(null);
@@ -57,19 +53,13 @@ export default function App() {
     const id = ++runId.current;
     setError(null);
     const target = await getTargetTab();
-    // The active tab is PageKit's own full view: keep showing the last page, no error.
-    if (!FULL_VIEW_TAB_ID && (await isOwnTab(target))) {
-      setNotice('You’re in PageKit’s full view. The side panel picks up again when you go back to a website.');
-      return;
-    }
-    setNotice(null);
     if (!target?.id || !isAnalyzable(target.url)) {
       setResult(null);
       setSiteFiles(null);
       setError(
         target
           ? 'This page can’t be read. Browser pages (like chrome://) and the Chrome Web Store are off-limits to extensions. Open a regular website and try again.'
-          : 'The page for this view was closed.'
+          : 'No page to read.'
       );
       return;
     }
@@ -105,14 +95,13 @@ export default function App() {
     chrome.storage.local.set({ mainOnly, auto });
   }, [mainOnly, auto]);
 
-  // Re-analyze when the page changes: any tab switch or load in the side panel,
-  // only the bound page in the full view.
+  // Re-analyze when the page changes: a tab switch or a page load in the active tab.
   useEffect(() => {
     if (!access) return;
-    const onActivated = () => settings.current.auto && !FULL_VIEW_TAB_ID && analyze();
-    const onUpdated = (tabId: number, info: { status?: string }, t: chrome.tabs.Tab) => {
+    const onActivated = () => settings.current.auto && analyze();
+    const onUpdated = (_tabId: number, info: { status?: string }, t: chrome.tabs.Tab) => {
       if (!settings.current.auto || info.status !== 'complete') return;
-      if (FULL_VIEW_TAB_ID ? tabId === FULL_VIEW_TAB_ID : t.active) analyze();
+      if (t.active) analyze();
     };
     chrome.tabs.onActivated.addListener(onActivated);
     chrome.tabs.onUpdated.addListener(onUpdated);
@@ -155,8 +144,7 @@ export default function App() {
   };
 
   const compact = scrolled > 24;
-  const wide = FULL_VIEW_TAB_ID ? 'max-w-6xl' : '';
-  const emptyMessage = error || notice ? null : loading ? (
+  const emptyMessage = error ? null : loading ? (
     'Reading the page…'
   ) : !access ? (
     <>
@@ -172,7 +160,7 @@ export default function App() {
     <div className='flex min-h-screen flex-col bg-background text-foreground'>
       {/* Sticky header: tabs stay reachable while scrolling; extra rows fold away. */}
       <header className={cx('sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-md transition-shadow', compact && 'shadow-xs')}>
-        <div className={cx('mx-auto space-y-tight px-pad py-tight', wide)}>
+        <div className='space-y-tight px-pad py-tight'>
           <div className='flex items-center justify-between gap-tight'>
             <button className='flex min-w-0 items-center gap-2 rounded-md text-left' onClick={() => go('home')} title='Go to Home'>
               <img src='/icons/icon32.png' alt='' className='h-[1.75em] w-[1.75em] shrink-0' />
@@ -187,11 +175,6 @@ export default function App() {
             </button>
             <div className='flex shrink-0 items-center gap-1.5'>
               <ThemeToggle choice={theme.choice} resolved={theme.resolved} onChange={theme.setTheme} />
-              {!FULL_VIEW_TAB_ID && result && (
-                <Button onClick={() => openFullView(result.tabId)} title='Open PageKit full width in a new tab' aria-label='Open full view'>
-                  <Maximize className={ICON} />
-                </Button>
-              )}
               <Button variant='primary' onClick={onAnalyzeClick} disabled={loading}>
                 <Refresh className={cx(ICON, loading && 'animate-spin')} />
                 {result ? 'Re-analyze' : 'Analyze'}
@@ -231,18 +214,13 @@ export default function App() {
         </div>
       </header>
 
-      <main className={cx('mx-auto w-full flex-1 px-pad pb-20 pt-stack', wide)}>
+      <main className='w-full flex-1 px-pad pb-20 pt-stack'>
         {error && (
           <div role='alert' className='mb-stack rounded-md border border-rose-200 bg-rose-50 px-[0.7em] py-[0.5em] text-xs text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300'>
             {error}
           </div>
         )}
 
-        {notice && (
-          <div role='status' className='mb-stack rounded-md border border-border bg-muted px-[0.7em] py-[0.5em] text-xs text-muted-foreground'>
-            {notice}
-          </div>
-        )}
 
         {tab === 'home' ? (
           <HomeTab seo={result?.seo ?? null} markdown={result?.markdown ?? null} siteFiles={siteFiles} emptyMessage={emptyMessage} onGo={go} />

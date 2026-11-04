@@ -48,7 +48,7 @@
 
 /* ------------------------------------------------------------------
  * Fluid sizes. `vw` is the panel's own width (side panel ~320–700px,
- * full view much wider), so text and spacing grow with it, within limits.
+ * or wider when dragged), so text and spacing grow with it, within limits.
  * ------------------------------------------------------------------ */
 @theme inline {
   --color-background: var(--background);

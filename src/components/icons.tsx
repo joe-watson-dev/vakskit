@@ -93,12 +93,6 @@ export const Home =(p: P) => (
   </Svg>
 );
 
-export const Maximize =(p: P) => (
-  <Svg {...p}>
-    <path d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7' />
-  </Svg>
-);
-
 export const ExternalLink = (p: P) => (
   <Svg {...p}>
     <path d='M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' />
