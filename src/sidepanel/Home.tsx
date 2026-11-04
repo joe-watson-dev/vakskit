@@ -113,19 +113,12 @@ function ProjectRows({ onGo, disabled, words, fonts }: { onGo: (s: Screen, forma
             <Braces />
           </span>
           <span className='grow'>
-            SEO as JSON<small>View, copy or download · title, meta, Open Graph</small>
+            Export SEO<small>JSON, TypeScript or HTML tags</small>
           </span>
-          <span className='tag json'>.json</span>
-          <Chevron className='chev' />
-        </button>
-        <button className='row' onClick={() => onGo('export', 'ts')} disabled={disabled}>
-          <span className='ri'>
-            <Braces />
+          <span className='tags'>
+            <span className='tag json'>.json</span>
+            <span className='tag ts'>.ts</span>
           </span>
-          <span className='grow'>
-            SEO as TypeScript<small>View, copy or download · typed, ready to import</small>
-          </span>
-          <span className='tag ts'>.ts</span>
           <Chevron className='chev' />
         </button>
         <button className='row' onClick={() => onGo('markdown')} disabled={disabled}>
@@ -133,7 +126,7 @@ function ProjectRows({ onGo, disabled, words, fonts }: { onGo: (s: Screen, forma
             <Download />
           </span>
           <span className='grow'>
-            Page as Markdown<small>{words ? `View, copy or download · ${words.toLocaleString()} words` : 'View, copy or download'}</small>
+            Page as Markdown<small>{words ? `${words.toLocaleString()} words` : 'Clean, ready to copy'}</small>
           </span>
           <span className='tag md'>.md</span>
           <Chevron className='chev' />
