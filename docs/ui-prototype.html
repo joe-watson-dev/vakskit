@@ -29,7 +29,9 @@
 .vk {
   --surface: #ffffff; --row: #ffffff; --row-hover: #faf9ff; --border: #ebe9f3;
   --bg: linear-gradient(180deg, #ece8ff 0%, #f5f3ff 26%, #fbfaff 55%, #ffffff 100%);
-  --card-shadow: 0 1px 2px rgb(40 30 90 / .05), 0 4px 14px -6px rgb(40 30 90 / .10);
+  /* layered: hairline ring, contact shadow, wide soft violet-tinted ambient */
+  --card-shadow: 0 0 0 1px rgb(60 40 140 / .045), 0 1px 2px rgb(60 40 140 / .06), 0 10px 26px -12px rgb(60 40 140 / .18);
+  --card-shadow-hover: 0 0 0 1px rgb(106 76 245 / .14), 0 2px 4px rgb(60 40 140 / .07), 0 18px 36px -14px rgb(106 76 245 / .32);
   --ink: #151518; --ink-2: #62626c; --ink-3: #9d9da6;
   /* VaksKit Violet: bright, not navy; white text */
   --primary: #6a4cf5; --primary-2: #8f78ff; --on-primary: #ffffff; --glow: rgb(106 76 245 / .32); --tint: #efebff; --tag-violet: #5a3de0;
@@ -41,7 +43,8 @@
   /* near-black neutral (no navy); violet primary */
   --surface: #0f0f12; --row: #1a1a1f; --row-hover: #222228; --border: #26262d;
   --bg: radial-gradient(120% 60% at 50% 0%, #1d1830 0%, #121117 45%, #0f0f12 100%);
-  --card-shadow: 0 1px 2px rgb(0 0 0 / .35);
+  --card-shadow: 0 0 0 1px rgb(255 255 255 / .05), 0 1px 2px rgb(0 0 0 / .45), 0 12px 28px -14px rgb(0 0 0 / .7);
+  --card-shadow-hover: 0 0 0 1px rgb(139 114 255 / .28), 0 2px 4px rgb(0 0 0 / .45), 0 18px 36px -14px rgb(106 76 245 / .35);
   --ink: #f2f2f4; --ink-2: #a2a2ac; --ink-3: #6e6e78;
   --primary: #8b72ff; --primary-2: #a592ff; --on-primary: #ffffff; --glow: rgb(139 114 255 / .28);
   --tint: rgb(139 114 255 / .16); --tag-violet: #b6a6ff;
@@ -192,7 +195,8 @@ nav[data-read]::after { top: 4px; left: auto; right: 8px; }
 /* Captures-style rows */
 .rows { display: grid; gap: 14px; }
 .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--row); font-weight: 600; font-size: .9em; width: 100%; text-align: left; }
-.row { box-shadow: var(--card-shadow); }
+.row { box-shadow: var(--card-shadow); transition: box-shadow .2s ease, transform .2s ease, background .2s ease; }
+.row:hover, .tile.soft:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-1px); }
 .row .grow small { display: block; margin-top: 2px; font-size: .86em; font-weight: 500; color: var(--ink-3); }
 .row .ri { width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--primary); display: grid; place-items: center; flex-shrink: 0; }
 .vk.dark .row .ri { background: var(--tint); }
