@@ -149,7 +149,7 @@ Tick all three certifications:
 Served by Vercel from the `site/` folder (`site/privacy/index.html`):
 
 ```
-https://<your-vercel-domain>/privacy
+https://vakskit.vercel.app/privacy
 ```
 
 ---
