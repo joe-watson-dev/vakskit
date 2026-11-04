@@ -29,9 +29,9 @@
 .vk {
   --surface: #ffffff; --row: #ffffff; --row-hover: #faf9ff; --border: #ebe9f3;
   --bg: linear-gradient(180deg, #ece8ff 0%, #f5f3ff 26%, #fbfaff 55%, #ffffff 100%);
-  /* layered: hairline ring, contact shadow, wide soft violet-tinted ambient */
-  --card-shadow: 0 0 0 1px rgb(60 40 140 / .045), 0 1px 2px rgb(60 40 140 / .06), 0 10px 26px -12px rgb(60 40 140 / .18);
-  --card-shadow-hover: 0 0 0 1px rgb(106 76 245 / .14), 0 2px 4px rgb(60 40 140 / .07), 0 18px 36px -14px rgb(106 76 245 / .32);
+  /* floating: no outline, just a soft violet-tinted shadow below */
+  --card-shadow: 0 1px 1px rgb(60 40 140 / .025), 0 8px 22px -10px rgb(60 40 140 / .09);
+  --card-shadow-hover: 0 1px 1px rgb(60 40 140 / .03), 0 14px 30px -12px rgb(106 76 245 / .16);
   --ink: #151518; --ink-2: #62626c; --ink-3: #9d9da6;
   /* VaksKit Violet: bright, not navy; white text */
   --primary: #6a4cf5; --primary-2: #8f78ff; --on-primary: #ffffff; --glow: rgb(106 76 245 / .32); --tint: #efebff; --tag-violet: #5a3de0;
@@ -43,8 +43,8 @@
   /* near-black neutral (no navy); violet primary */
   --surface: #0f0f12; --row: #1a1a1f; --row-hover: #222228; --border: #26262d;
   --bg: radial-gradient(120% 60% at 50% 0%, #1d1830 0%, #121117 45%, #0f0f12 100%);
-  --card-shadow: 0 0 0 1px rgb(255 255 255 / .05), 0 1px 2px rgb(0 0 0 / .45), 0 12px 28px -14px rgb(0 0 0 / .7);
-  --card-shadow-hover: 0 0 0 1px rgb(139 114 255 / .28), 0 2px 4px rgb(0 0 0 / .45), 0 18px 36px -14px rgb(106 76 245 / .35);
+  --card-shadow: 0 0 0 1px rgb(255 255 255 / .03), 0 10px 24px -12px rgb(0 0 0 / .55);
+  --card-shadow-hover: 0 0 0 1px rgb(255 255 255 / .05), 0 14px 30px -12px rgb(106 76 245 / .22);
   --ink: #f2f2f4; --ink-2: #a2a2ac; --ink-3: #6e6e78;
   --primary: #8b72ff; --primary-2: #a592ff; --on-primary: #ffffff; --glow: rgb(139 114 255 / .28);
   --tint: rgb(139 114 255 / .16); --tag-violet: #b6a6ff;
