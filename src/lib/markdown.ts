@@ -116,7 +116,7 @@ export function markdownToHtml(md: string) {
 /**
  * Wrap a fragment in a full standalone HTML document.
  * theme 'auto' (downloads) follows the reader's system setting;
- * 'light' / 'dark' (in-app previews) match PageKit's current theme.
+ * 'light' / 'dark' (in-app previews) match VaksKit's current theme.
  */
 export function htmlDocument(body: string, title = 'Document', theme: 'auto' | 'light' | 'dark' = 'auto') {
   const dark = `--fg:#e6edf3;--bg:#0d1117;--muted:#9198a1;--line:#3d444d;--code:#151b23;--link:#4493f8;color-scheme:dark;`;
@@ -149,6 +149,6 @@ ${body}
 `;
 }
 
-/** Preview version: matches PageKit's theme, and links open in a new tab. */
+/** Preview version: matches VaksKit's theme, and links open in a new tab. */
 export const previewDocument = (html: string, title = 'Preview') =>
   htmlDocument(html, title, currentTheme()).replace('<head>', '<head><base target="_blank" />');

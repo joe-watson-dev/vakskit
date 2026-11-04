@@ -1,82 +1,96 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  analyzeTab,
-  fetchSiteFiles,
-  getTargetTab,
-  hasSiteAccess,
-  isAnalyzable,
-  requestSiteAccess,
-  type SiteFile,
-} from '@/lib/chrome';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { analyzeTab, fetchSiteFiles, getTargetTab, hasSiteAccess, isAnalyzable, requestSiteAccess, showScan, type SiteFile } from '@/lib/chrome';
 import { buildMarkdown } from '@/lib/markdown';
-import { cleanUrl } from '@/lib/url';
-import { cx } from '@/lib/cx';
 import { useTheme } from '@/lib/theme';
 import type { Seo } from '@/lib/types';
-import { Button, Empty, ICON } from '@/components/ui';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Code, FileText, Home, Refresh, Search } from '@/components/icons';
-import { HomeTab } from './HomeTab';
-import { SeoTab } from './SeoTab';
-import { MarkdownTab } from './MarkdownTab';
-import { ConvertTab } from './ConvertTab';
+import { Back, Logo, Moon, More, Sun } from '@/components/icons';
+import { Menu } from './Menu';
+import { Home } from './Home';
+import { SeoScreen } from './SeoScreen';
+import { MarkdownScreen } from './MarkdownScreen';
+import { ConvertScreen } from './ConvertScreen';
 
-export type Tab = 'home' | 'seo' | 'markdown' | 'convert';
-type Result = { seo: Seo; markdown: string; tabId: number };
+export type Screen = 'home' | 'seo' | 'markdown' | 'convert';
+export type Result = { seo: Seo; markdown: string; tabId: number };
 
-const TABS: { id: Tab; label: string; hint: string; icon: JSX.Element }[] = [
-  { id: 'home', label: 'Home', hint: 'Overview of this page', icon: <Home className={ICON} /> },
-  { id: 'seo', label: 'SEO', hint: 'SEO report and export', icon: <Search className={ICON} /> },
-  { id: 'markdown', label: 'Markdown', hint: 'Page → Markdown', icon: <FileText className={ICON} /> },
-  { id: 'convert', label: 'MD → HTML', hint: 'Markdown → HTML converter', icon: <Code className={ICON} /> },
-];
+const STEPS = ['Reading meta tags…', 'Reading headings…', 'Checking images…', 'Converting to Markdown…', 'Looking for llms.txt…'];
+const SAMPLE = '# Hello from VaksKit\n\nWrite **Markdown** here and get clean HTML.\n\n- Lists\n- `code`\n- [Links](https://example.com)\n';
 
-const SAMPLE = '# Hello, from Markdown!\n\nWrite **Markdown** here and see the HTML.\n\n- Lists\n- `code`\n- [Links](https://example.com)\n';
+/** Header for detail screens: back, title, the screen's own icon actions, then ···. */
+export function ScreenHeader({ title, onBack, actions, menu }: { title: string; onBack: () => void; actions?: ReactNode; menu: ReactNode }) {
+  return (
+    <header className='head'>
+      <button className='brand' onClick={onBack} aria-label={`Back to Home from ${title}`}>
+        <span className='back-btn'>
+          <Back className='size-4' />
+        </span>
+        {title}
+      </button>
+      <div className='head-actions'>
+        {actions}
+        {menu}
+      </div>
+    </header>
+  );
+}
 
 export default function App() {
   const theme = useTheme();
-  const [tab, setTab] = useState<Tab>('home');
+  const [screen, setScreen] = useState<Screen>('home');
   const [result, setResult] = useState<Result | null>(null);
   const [siteFiles, setSiteFiles] = useState<SiteFile[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [mainOnly, setMainOnly] = useState(true);
   const [auto, setAuto] = useState(true);
   const [access, setAccess] = useState<boolean | null>(null);
   const [converterMd, setConverterMd] = useState(SAMPLE);
-  const [scrolled, setScrolled] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const settings = useRef({ mainOnly, auto });
   settings.current = { mainOnly, auto };
   const runId = useRef(0);
+  const toastTimer = useRef<number>();
 
-  const analyze = useCallback(async () => {
+  const notify = useCallback((msg: string) => {
+    window.clearTimeout(toastTimer.current);
+    setToast(msg);
+    toastTimer.current = window.setTimeout(() => setToast(null), 1700);
+  }, []);
+
+  const analyze = useCallback(async (opts?: { scan?: boolean }) => {
     const id = ++runId.current;
     setError(null);
     const target = await getTargetTab();
     if (!target?.id || !isAnalyzable(target.url)) {
       setResult(null);
       setSiteFiles(null);
-      setError(
-        target
-          ? 'This page can’t be read. Browser pages (like chrome://) and the Chrome Web Store are off-limits to extensions. Open a regular website and try again.'
-          : 'No page to read.'
-      );
+      setError('This page can’t be read. Browser pages (like chrome://) and the Chrome Web Store are off-limits to extensions. Open a website and try again.');
       return;
     }
+    if (opts?.scan) showScan(target.id);
     setLoading(true);
+    setStep(0);
     try {
       const page = await analyzeTab(target.id, settings.current.mainOnly);
-      const { seo } = page;
       if (id !== runId.current) return; // a newer analysis started
-      setResult({ seo, markdown: buildMarkdown(page), tabId: target.id });
+      setResult({ seo: page.seo, markdown: buildMarkdown(page), tabId: target.id });
       setSiteFiles(null);
-      fetchSiteFiles(seo.url).then((files) => id === runId.current && setSiteFiles(files));
+      fetchSiteFiles(page.seo.url).then((files) => id === runId.current && setSiteFiles(files));
     } catch (e) {
       if (id === runId.current) setError(`Couldn’t read this page: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       if (id === runId.current) setLoading(false);
     }
   }, []);
+
+  // Step-by-step status while reading (informative only).
+  useEffect(() => {
+    if (!loading) return;
+    const t = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 420);
+    return () => window.clearInterval(t);
+  }, [loading]);
 
   // Load saved settings and permission state; analyze straight away when allowed.
   useEffect(() => {
@@ -100,8 +114,7 @@ export default function App() {
     if (!access) return;
     const onActivated = () => settings.current.auto && analyze();
     const onUpdated = (_tabId: number, info: { status?: string }, t: chrome.tabs.Tab) => {
-      if (!settings.current.auto || info.status !== 'complete') return;
-      if (t.active) analyze();
+      if (settings.current.auto && info.status === 'complete' && t.active) analyze();
     };
     chrome.tabs.onActivated.addListener(onActivated);
     chrome.tabs.onUpdated.addListener(onUpdated);
@@ -111,7 +124,7 @@ export default function App() {
     };
   }, [access, analyze]);
 
-  // Re-build Markdown when "Main content only" changes.
+  // Re-build the Markdown when "Main content only" changes.
   const firstMainOnly = useRef(true);
   useEffect(() => {
     if (firstMainOnly.current) {
@@ -121,136 +134,96 @@ export default function App() {
     if (access) analyze();
   }, [mainOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const go = (next: Tab, section?: string) => {
-    setTab(next);
-    requestAnimationFrame(() => {
-      if (section) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.scrollTo({ top: 0 });
-    });
-  };
-
   const onAnalyzeClick = async () => {
     // Ask for site access from the click itself (Chrome requires a user gesture).
     const ok = await requestSiteAccess();
     setAccess(ok);
-    if (ok) analyze();
-    else setError('PageKit needs permission to read pages. Click Analyze and choose Allow.');
+    if (ok) analyze({ scan: true });
+    else setError('VaksKit needs permission to read pages. Click Analyze and choose Allow.');
   };
 
-  const compact = scrolled > 24;
-  const emptyMessage = error ? null : loading ? (
-    'Reading the page…'
-  ) : !access ? (
-    <>
-      Click <b className='text-foreground'>Analyze</b> to read this page.
-      <br />
-      Chrome asks once for permission to read pages.
-    </>
-  ) : (
-    'Nothing analyzed yet. Click Analyze.'
+  const go = (next: Screen) => {
+    setMenuOpen(false);
+    setScreen(next);
+  };
+  const home = () => go('home');
+
+  const menu = (
+    <div className='head-actions'>
+      <button className='ibtn' aria-label='More options' aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
+        <More />
+      </button>
+      {menuOpen && (
+        <Menu
+          onClose={() => setMenuOpen(false)}
+          theme={theme.choice}
+          onTheme={theme.setTheme}
+          mainOnly={mainOnly}
+          onMainOnly={setMainOnly}
+          auto={auto}
+          onAuto={setAuto}
+        />
+      )}
+    </div>
   );
 
+  const needsPage = (screen === 'seo' || screen === 'markdown') && !result;
+
   return (
-    <div className='flex min-h-screen flex-col bg-background text-foreground'>
-      {/* Sticky header: tabs stay reachable while scrolling; extra rows fold away. */}
-      <header className={cx('sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-md transition-shadow', compact && 'shadow-xs')}>
-        <div className='space-y-tight px-pad py-tight'>
-          <div className='flex items-center justify-between gap-tight'>
-            <button className='flex min-w-0 items-center gap-2 rounded-md text-left' onClick={() => go('home')} title='Go to Home'>
-              <img src='/icons/icon32.png' alt='' className='h-[1.75em] w-[1.75em] shrink-0' />
-              <span className='min-w-0'>
-                <span className='block text-sm font-semibold leading-tight'>PageKit</span>
-                {!compact && (
-                  <span className='block truncate text-2xs text-muted-foreground'>
-                    {result ? cleanUrl(result.seo.url) : 'SEO & Markdown for any page'}
-                  </span>
-                )}
-              </span>
-            </button>
-            <div className='flex shrink-0 items-center gap-1.5'>
-              <ThemeToggle choice={theme.choice} resolved={theme.resolved} onChange={theme.setTheme} />
-              <Button variant='primary' onClick={onAnalyzeClick} disabled={loading}>
-                <Refresh className={cx(ICON, loading && 'animate-spin')} />
-                {result ? 'Re-analyze' : 'Analyze'}
-              </Button>
+    <div className={`vk${loading ? ' busy' : ''}`}>
+      {screen === 'home' && (
+        <>
+          <header className='head'>
+            <div className='brand'>
+              <Logo />
+              VaksKit
             </div>
-          </div>
-
-          <nav className='grid grid-cols-4 gap-1 rounded-lg bg-muted p-0.5' aria-label='Features'>
-            {TABS.map((t) => (
+            <div className='head-actions'>
               <button
-                key={t.id}
-                onClick={() => go(t.id)}
-                aria-current={tab === t.id ? 'page' : undefined}
-                title={t.hint}
-                className={cx(
-                  'flex min-w-0 items-center justify-center gap-[0.35em] whitespace-nowrap rounded-md px-1 py-[0.55em] text-xs font-medium leading-none transition',
-                  tab === t.id ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
-                )}
+                className='ibtn'
+                aria-label={`Switch to ${theme.resolved === 'dark' ? 'light' : 'dark'} mode`}
+                title='Theme'
+                onClick={() => theme.setTheme(theme.resolved === 'dark' ? 'light' : 'dark')}
               >
-                {/* Icons give way to the labels on narrow panels. */}
-                <span className='max-[440px]:hidden'>{t.icon}</span>
-                <span className='truncate'>{t.label}</span>
+                {theme.resolved === 'dark' ? <Moon /> : <Sun />}
               </button>
-            ))}
-          </nav>
-
-          {!compact && (
-            <div className='flex flex-wrap gap-x-4 gap-y-1 text-2xs text-muted-foreground'>
-              <label className='flex items-center gap-1.5' title='Skip menus, header, footer and sidebars when building Markdown'>
-                <input type='checkbox' checked={mainOnly} onChange={(e) => setMainOnly(e.target.checked)} /> Main content only
-              </label>
-              <label className='flex items-center gap-1.5' title='Analyze again when you switch tabs or a page loads'>
-                <input type='checkbox' checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Auto-analyze
-              </label>
+              {menu}
             </div>
-          )}
-        </div>
-      </header>
-
-      <main className='w-full flex-1 px-pad pb-20 pt-stack'>
-        {error && (
-          <div role='alert' className='mb-stack rounded-md border border-rose-200 bg-rose-50 px-[0.7em] py-[0.5em] text-xs text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300'>
-            {error}
-          </div>
-        )}
-
-
-        {tab === 'home' ? (
-          <HomeTab seo={result?.seo ?? null} markdown={result?.markdown ?? null} siteFiles={siteFiles} emptyMessage={emptyMessage} onGo={go} />
-        ) : tab === 'convert' ? (
-          <ConvertTab value={converterMd} onChange={setConverterMd} />
-        ) : !result ? (
-          emptyMessage && <Empty>{emptyMessage}</Empty>
-        ) : tab === 'seo' ? (
-          <SeoTab seo={result.seo} siteFiles={siteFiles} />
-        ) : (
-          <MarkdownTab
-            markdown={result.markdown}
-            url={result.seo.url}
-            title={result.seo.title || 'Page'}
-            onSendToConverter={() => {
-              setConverterMd(result.markdown);
-              go('convert');
-            }}
+          </header>
+          <Home
+            result={result}
+            loading={loading}
+            step={STEPS[step]}
+            progress={(step + 1) / STEPS.length}
+            error={error}
+            access={access}
+            onAnalyze={onAnalyzeClick}
+            onGo={go}
+            notify={notify}
           />
-        )}
-      </main>
+        </>
+      )}
+      {screen === 'seo' && result && <SeoScreen seo={result.seo} siteFiles={siteFiles} notify={notify} onBack={home} menu={menu} />}
+      {screen === 'markdown' && result && <MarkdownScreen result={result} notify={notify} onBack={home} menu={menu} />}
+      {screen === 'convert' && <ConvertScreen value={converterMd} onChange={setConverterMd} notify={notify} onBack={home} menu={menu} />}
+      {needsPage && (
+        <>
+          <ScreenHeader title={screen === 'seo' ? 'SEO report' : 'Markdown'} onBack={home} menu={menu} />
+          <div className='body'>
+            <div className='empty'>
+              <p>Analyze a page first.</p>
+              <button className='btn primary' onClick={home}>
+                Back to Home
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
-      {scrolled > 400 && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className='fixed bottom-pad right-pad z-20 rounded-full bg-foreground/85 px-[0.9em] py-[0.55em] text-2xs font-medium text-background shadow-lg hover:bg-foreground'
-          aria-label='Back to top'
-        >
-          ↑ Top
-        </button>
+      {toast && (
+        <div className='toast' role='status'>
+          {toast}
+        </div>
       )}
     </div>
   );

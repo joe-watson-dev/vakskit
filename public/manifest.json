@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "PageKit — SEO & Markdown",
-  "short_name": "PageKit",
+  "name": "VaksKit — SEO & Markdown",
+  "short_name": "VaksKit",
   "version": "0.1.0",
-  "description": "Turn any page into clean Markdown, convert Markdown to HTML, and export the page's SEO as JSON, TypeScript or Next.js metadata.",
+  "description": "Turn any page into clean Markdown, convert Markdown to HTML, and export the page's SEO as JSON or TypeScript for your project.",
   "minimum_chrome_version": "116",
   "action": {
-    "default_title": "Open PageKit",
+    "default_title": "Open VaksKit",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

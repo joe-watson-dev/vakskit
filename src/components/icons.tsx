@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-// Lucide icons (https://lucide.dev), inlined to keep the bundle small.
-const Svg = ({ children, className = 'h-4 w-4' }: { children: ReactNode; className?: string }) => (
+// Line icons (Lucide shapes), inlined to keep the bundle small.
+const Svg = ({ children, className, sw = 1.8 }: { children: ReactNode; className?: string; sw?: number }) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     viewBox='0 0 24 24'
     fill='none'
     stroke='currentColor'
-    strokeWidth={2}
+    strokeWidth={sw}
     strokeLinecap='round'
     strokeLinejoin='round'
     className={className}
@@ -19,88 +19,94 @@ const Svg = ({ children, className = 'h-4 w-4' }: { children: ReactNode; classNa
 
 type P = { className?: string };
 
-export const Download = (p: P) => (
-  <Svg {...p}>
-    <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
-    <path d='m7 10 5 5 5-5M12 15V3' />
-  </Svg>
+export const Logo = () => (
+  <span className='logo' aria-hidden='true'>
+    <i />
+    <i />
+    <i />
+    <i />
+  </span>
 );
 
-export const Copy = (p: P) => (
+export const Gauge = (p: P) => (
   <Svg {...p}>
-    <rect width='14' height='14' x='8' y='8' rx='2' />
-    <path d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2' />
+    <path d='m12 14 4-4' />
+    <path d='M3.3 19a10 10 0 1 1 17.4 0' />
   </Svg>
 );
-
-export const Check = (p: P) => (
+export const Doc = (p: P) => (
   <Svg {...p}>
-    <path d='M20 6 9 17l-5-5' />
+    <path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' />
+    <path d='M14 2v6h6M8 13h8M8 17h5' />
   </Svg>
 );
-
-export const Refresh = (p: P) => (
+export const Braces = (p: P) => (
   <Svg {...p}>
-    <path d='M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8' />
-    <path d='M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16' />
-    <path d='M8 16H3v5' />
+    <path d='M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1M16 21h1a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2 2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1' />
   </Svg>
 );
-
-export const Search = (p: P) => (
-  <Svg {...p}>
-    <circle cx='11' cy='11' r='8' />
-    <path d='m21 21-4.3-4.3' />
-  </Svg>
-);
-
-export const FileText = (p: P) => (
-  <Svg {...p}>
-    <path d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z' />
-    <path d='M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8' />
-  </Svg>
-);
-
 export const Code = (p: P) => (
   <Svg {...p}>
     <path d='m16 18 6-6-6-6M8 6l-6 6 6 6' />
   </Svg>
 );
-
+export const Download = (p: P) => (
+  <Svg {...p} sw={2}>
+    <path d='M12 3v12m-5-5 5 5 5-5M5 21h14' />
+  </Svg>
+);
+export const Copy = (p: P) => (
+  <Svg {...p} sw={2}>
+    <rect x='8' y='8' width='13' height='13' rx='3' />
+    <path d='M4 16V5a2 2 0 0 1 2-2h11' />
+  </Svg>
+);
+export const Check = (p: P) => (
+  <Svg {...p} sw={2.4}>
+    <path d='M20 6 9 17l-5-5' />
+  </Svg>
+);
+export const Chevron = (p: P) => (
+  <Svg {...p} sw={2.2}>
+    <path d='m9 18 6-6-6-6' />
+  </Svg>
+);
+export const Back = (p: P) => (
+  <Svg {...p} sw={2}>
+    <path d='m15 18-6-6 6-6' />
+  </Svg>
+);
+export const Refresh = (p: P) => (
+  <Svg {...p}>
+    <path d='M21 12a9 9 0 1 1-2.6-6.4L21 8M21 3v5h-5' />
+  </Svg>
+);
 export const Sun = (p: P) => (
   <Svg {...p}>
     <circle cx='12' cy='12' r='4' />
-    <path d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41' />
+    <path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' />
   </Svg>
 );
-
 export const Moon = (p: P) => (
   <Svg {...p}>
     <path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' />
   </Svg>
 );
-
-export const Monitor = (p: P) => (
+export const More = ({ className }: P) => (
+  <svg viewBox='0 0 24 24' fill='currentColor' className={className} aria-hidden='true'>
+    <circle cx='5' cy='12' r='1.8' />
+    <circle cx='12' cy='12' r='1.8' />
+    <circle cx='19' cy='12' r='1.8' />
+  </svg>
+);
+export const Eye = (p: P) => (
   <Svg {...p}>
-    <rect width='20' height='14' x='2' y='3' rx='2' />
-    <path d='M8 21h8M12 17v4' />
+    <path d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z' />
+    <circle cx='12' cy='12' r='3' />
   </Svg>
 );
-
-export const Home =(p: P) => (
+export const EyeOff = (p: P) => (
   <Svg {...p}>
-    <path d='M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z' />
-  </Svg>
-);
-
-export const ExternalLink = (p: P) => (
-  <Svg {...p}>
-    <path d='M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' />
-  </Svg>
-);
-
-export const Sparkles =(p: P) => (
-  <Svg {...p}>
-    <path d='M9.94 14.06 4 20M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2Z' />
+    <path d='M10.7 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.2 3.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20' />
   </Svg>
 );

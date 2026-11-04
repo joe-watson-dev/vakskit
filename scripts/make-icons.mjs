@@ -1,5 +1,5 @@
 // Generates the extension icons (public/icons/*.png) with no dependencies:
-// an indigo rounded square with a white "page" and three text lines.
+// the VaksKit 2x2 bento logo.
 // Run: node scripts/make-icons.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
@@ -31,18 +31,22 @@ function png(size) {
     const cy = Math.min(Math.max(y, y0 + r), y1 - r);
     return (x - cx) ** 2 + (y - cy) ** 2 <= r * r;
   };
+  // VaksKit logo: a 2x2 bento of rounded squares (blue, coral, violet, teal).
+  const cells = [
+    [0, 0, [47, 123, 234]],
+    [1, 0, [242, 85, 44]],
+    [0, 1, [124, 77, 255]],
+    [1, 1, [16, 168, 143]],
+  ];
+  const gap = 0.1;
+  const cell = (1 - gap) / 2;
   const shade = (u, v) => {
-    // u, v in [0,1]
-    if (!inRoundRect(u, v, 0, 0, 1, 1, 0.22)) return null;
-    const bg = [79 - 30 * v, 70 - 20 * v, 229 - 20 * v]; // indigo gradient
-    if (inRoundRect(u, v, 0.27, 0.2, 0.73, 0.8, 0.06)) {
-      const lines = [0.36, 0.5, 0.64];
-      const widths = [0.62, 0.62, 0.52];
-      for (let i = 0; i < 3; i++)
-        if (inRoundRect(u, v, 0.35, lines[i] - 0.035, widths[i], lines[i] + 0.035, 0.035)) return [99, 102, 241];
-      return [255, 255, 255];
+    for (const [cx, cy, color] of cells) {
+      const x0 = cx * (cell + gap);
+      const y0 = cy * (cell + gap);
+      if (inRoundRect(u, v, x0, y0, x0 + cell, y0 + cell, cell * 0.28)) return color;
     }
-    return bg;
+    return null;
   };
   const rows = [];
   for (let y = 0; y < size; y++) {

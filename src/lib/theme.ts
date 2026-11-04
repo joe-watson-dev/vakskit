@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 export type ThemeChoice = 'system' | 'light' | 'dark';
 
 // Same key as public/theme-init.js, which applies the theme before first paint.
-const KEY = 'pagekit-theme';
+const KEY = 'vakskit-theme';
 const media = window.matchMedia('(prefers-color-scheme: dark)');
 
 const read = (): ThemeChoice => {

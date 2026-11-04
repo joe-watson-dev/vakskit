@@ -1,4 +1,5 @@
 import { extractPage } from './extract';
+import { showScanOverlay } from './overlay';
 import type { PageResult } from './types';
 
 const ALL_SITES = { origins: ['<all_urls>'] };
@@ -60,4 +61,9 @@ export async function fetchSiteFiles(pageUrl: string): Promise<SiteFile[]> {
       }
     })
   );
+}
+
+/** Visual only: sweep a scan line over the page while it is read. Never blocks or fails analysis. */
+export function showScan(tabId: number) {
+  chrome.scripting.executeScript({ target: { tabId }, func: showScanOverlay }).catch(() => undefined);
 }

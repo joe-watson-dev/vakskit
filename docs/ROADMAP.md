@@ -20,14 +20,14 @@ The goal: "Here is my site. Who ranks for what I sell, what do they do better, a
 
 ### User flow
 
-1. **Profile my site**: the user analyzes their own site in PageKit (already possible). From the pages we pull the product, audience and topic keywords.
+1. **Profile my site**: the user analyzes their own site in VaksKit (already possible). From the pages we pull the product, audience and topic keywords.
 2. **Find competitors**: search the web for those keywords and collect the domains that rank organically (ads excluded) again and again.
 3. **Compare**: run the same SEO extraction on the competitors' top pages, side by side: titles, descriptions, headings, word count, structured data, llms.txt, and the topics they cover that we don't.
 4. **Advise**: an AI step turns the comparison into a short, prioritized plan:
    - On-page fixes for the user's own pages (titles, descriptions, headings, schema)
    - **Content gaps**: topics competitors rank for and the user doesn't have
    - **Article ideas**: title, target keyword, search intent, outline, internal links
-5. **Export** the plan as Markdown / JSON, same as the rest of PageKit.
+5. **Export** the plan as Markdown / JSON, same as the rest of VaksKit.
 
 ### Why it needs a small backend
 
