@@ -8,7 +8,7 @@ export function SiteIcon({ seo, mini }: { seo: Seo; mini?: boolean }) {
   const icon = seo.icons.find((i) => /icon/i.test(i.rel) && !/mask/i.test(i.rel))?.href || `${new URL(seo.url).origin}/favicon.ico`;
   const host = hostOf(seo.url);
   return (
-    <span className={`fav${mini ? ' mini' : ''}`} aria-hidden='true'>
+    <span className={`fav${mini ? ' mini' : ''}${broken ? ' letters' : ''}`} aria-hidden='true'>
       {!broken ? <img src={icon} alt='' onError={() => setBroken(true)} /> : host.slice(0, 2).toUpperCase()}
     </span>
   );

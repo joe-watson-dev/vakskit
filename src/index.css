@@ -999,3 +999,48 @@ pre.md .ln.fm + .h1 { padding-top: 0.5em; }
 pre.md .bq { margin: 0.2em 0; }
 .doc-head { padding-bottom: 8px; }
 pre.code-view { line-height: 1.85; }
+
+/* ---------- site icon: always on a visible tile ---------- */
+.fav {
+  background: #ffffff;
+  box-shadow: var(--card-shadow);
+  padding: 4px;
+}
+.fav img {
+  border-radius: 4px;
+  background: transparent;
+}
+.fav.mini {
+  padding: 2px;
+}
+.fav.letters {
+  padding: 0;
+  background: linear-gradient(150deg, var(--primary-2), var(--primary));
+  color: #ffffff;
+  box-shadow: 0 4px 10px -6px var(--glow);
+}
+:root.dark .fav:not(.letters) {
+  background: #f2f2f4;
+}
+
+/* ---------- credit ---------- */
+.credit {
+  flex-shrink: 0;
+  padding: 10px 16px 14px;
+  text-align: center;
+  font-size: 0.74em;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.credit a {
+  color: var(--ink-2);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.credit a:hover {
+  color: var(--primary);
+  border-bottom-color: currentColor;
+}
+.credit a { letter-spacing: 0.06em; }

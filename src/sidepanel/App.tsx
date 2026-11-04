@@ -203,6 +203,12 @@ export default function App() {
             onAnalyze={onAnalyzeClick}
             onGo={go}
           />
+          <footer className='credit'>
+            Made by{' '}
+            <a href='https://joedev.vakaks.com/' target='_blank' rel='noopener noreferrer' title='Joe Watson DEV'>
+              VAKAKS
+            </a>
+          </footer>
         </>
       )}
       {screen === 'seo' && result && <SeoScreen seo={result.seo} siteFiles={siteFiles} notify={notify} onBack={home} menu={menu} />}
