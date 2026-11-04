@@ -8,9 +8,9 @@
 
 [![Chrome MV3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 [![Version](https://img.shields.io/badge/version-0.1.0-6a4cf5)](public/manifest.json)
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![pnpm](https://img.shields.io/badge/pnpm-required-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 
 [Features](#features) · [Getting started](#getting-started) · [How it works](#how-it-works) · [Project structure](#project-structure) · [Contributing](#contributing)
@@ -42,7 +42,7 @@ Also: light, dark and system themes; auto-analyze when you change tabs; and a sc
 
 ## 🚀 Getting started
 
-**Requirements:** Node 20+, [pnpm](https://pnpm.io/) (this repo uses pnpm, not npm), and Chrome 116+.
+**Requirements:** Node 22.12+ (or 20.19+), [pnpm](https://pnpm.io/) (this repo uses pnpm, not npm), and Chrome 116+.
 
 ```bash
 git clone https://github.com/joe-watson-dev/vakskit.git
@@ -71,7 +71,8 @@ To debug, right-click inside the side panel → **Inspect** (panel UI). For the 
 
 | Script | What it does |
 | --- | --- |
-| `pnpm build` | Type-check (`tsc`) and build the extension into `dist/` |
+| `pnpm build` | Type-check and build the extension into `dist/` |
+| `pnpm typecheck` | Type-check only (TypeScript 7 `tsc`) |
 | `pnpm dev` | Rebuild `dist/` on every file change |
 | `pnpm lint` | ESLint (no warnings allowed) |
 | `pnpm zip` | Build and pack `vakskit.zip` for the Chrome Web Store |
@@ -163,9 +164,13 @@ All tokens and component styles live in `src/index.css` (plain CSS classes; Tail
 
 ## 🧰 Stack
 
-React 18 · TypeScript · Vite 5 · Chrome Manifest V3 · Defuddle · turndown (+ GFM) · marked · DOMPurify · Tailwind CSS 4
+React 19 · TypeScript 7 · Vite 8 (Rolldown) · Chrome Manifest V3 · Defuddle · turndown (+ GFM) · marked · DOMPurify · Tailwind CSS 4
 
 <a id="contributing"></a>
+
+### TypeScript 7 and ESLint
+
+`tsc` is TypeScript 7 (the native compiler, installed as `@typescript/native`). typescript-eslint doesn't support TypeScript 7 yet, so the `typescript` package name points to the TypeScript 6 compatibility build (`@typescript/typescript6`), as the TypeScript team recommends. When typescript-eslint supports 7.x, drop the alias and keep a single `typescript`.
 
 ## 🤝 Contributing
 

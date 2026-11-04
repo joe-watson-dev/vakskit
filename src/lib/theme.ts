@@ -18,19 +18,19 @@ function apply(choice: ThemeChoice) {
 }
 
 /**
- * Light / dark / system theme, shadcn-style: a `.dark` class on <html>.
- * The choice is shared by the side panel and full-view tabs (same origin).
+ * Light / dark / system theme: a `.dark` class on <html>.
+ * The choice is kept in localStorage, shared by every VaksKit page (same origin).
  */
 export function useTheme() {
   const [choice, setChoice] = useState<ThemeChoice>(read);
-  const [resolved, setResolved] = useState<'light' | 'dark'>(() => resolve(read()));
+  const [systemDark, setSystemDark] = useState(media.matches);
+  const resolved: 'light' | 'dark' = choice === 'system' ? (systemDark ? 'dark' : 'light') : choice;
 
   useEffect(() => {
     apply(choice);
-    setResolved(resolve(choice));
     const onSystem = () => {
       apply(choice);
-      setResolved(resolve(choice));
+      setSystemDark(media.matches);
     };
     const onStorage = (e: StorageEvent) => e.key === KEY && setChoice(read());
     media.addEventListener('change', onSystem);

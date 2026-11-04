@@ -51,10 +51,13 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
   const [toast, setToast] = useState<string | null>(null);
+  // Latest settings for callbacks and tab listeners (kept in sync outside render).
   const settings = useRef({ mainOnly, auto });
-  settings.current = { mainOnly, auto };
+  useEffect(() => {
+    settings.current = { mainOnly, auto };
+  }, [mainOnly, auto]);
   const runId = useRef(0);
-  const toastTimer = useRef<number>();
+  const toastTimer = useRef<number | undefined>(undefined);
 
   const notify = useCallback((msg: string) => {
     window.clearTimeout(toastTimer.current);
@@ -128,14 +131,11 @@ export default function App() {
   }, [access, analyze]);
 
   // Re-build the Markdown when "Main content only" changes.
-  const firstMainOnly = useRef(true);
-  useEffect(() => {
-    if (firstMainOnly.current) {
-      firstMainOnly.current = false;
-      return;
-    }
+  const changeMainOnly = (next: boolean) => {
+    setMainOnly(next);
+    settings.current = { ...settings.current, mainOnly: next };
     if (access) analyze();
-  }, [mainOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  };
 
   const onAnalyzeClick = async () => {
     // Ask for site access from the click itself (Chrome requires a user gesture).
@@ -163,7 +163,7 @@ export default function App() {
           theme={theme.choice}
           onTheme={theme.setTheme}
           mainOnly={mainOnly}
-          onMainOnly={setMainOnly}
+          onMainOnly={changeMainOnly}
           auto={auto}
           onAuto={setAuto}
         />

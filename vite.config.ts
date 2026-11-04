@@ -18,24 +18,24 @@ export default defineConfig({
         this.emitFile({
           type: 'asset',
           fileName: 'vendor/defuddle.js',
-          source: fs.readFileSync(path.resolve(__dirname, 'node_modules/defuddle/dist/index.full.js'), 'utf8'),
+          source: fs.readFileSync(path.resolve(import.meta.dirname, 'node_modules/defuddle/dist/index.full.js'), 'utf8'),
         });
       },
     },
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   build: {
     outDir: 'dist',
     emptyOutDir: true,
     target: 'chrome116',
-    rollupOptions: {
+    rolldownOptions: {
       input: {
-        sidepanel: path.resolve(__dirname, 'sidepanel.html'),
-        background: path.resolve(__dirname, 'src/background.ts'),
+        sidepanel: path.resolve(import.meta.dirname, 'sidepanel.html'),
+        background: path.resolve(import.meta.dirname, 'src/background.ts'),
       },
       output: {
         entryFileNames: (chunk) => (chunk.name === 'background' ? 'background.js' : 'assets/[name]-[hash].js'),
