@@ -137,7 +137,7 @@ No, I am not using remote code.
 
 ### Data usage
 
-Leave every data type **unchecked**. VaksKit doesn't collect or transmit user data. It reads the page you're on and shows the results in the panel, on your device only.
+Tick **Website content** only. Google's User Data FAQ says data processed only on the device must still be disclosed, and VaksKit reads the content of the page you analyze. Leave every other type unchecked. This matches section 2 of the privacy policy.
 
 Tick all three certifications:
 - I do not sell or transfer user data to third parties, outside of the approved use cases
